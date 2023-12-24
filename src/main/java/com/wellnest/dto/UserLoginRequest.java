@@ -25,5 +25,5 @@ public class UserLoginRequest {
         public void setPassword(String password) {
             this.password = password;
         }
-    }
+
 }
