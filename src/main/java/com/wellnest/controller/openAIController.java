@@ -1,12 +1,11 @@
-package com.wellnest;
+package com.wellnest.controller;
 
 import com.wellnest.dto.MessageRequest;
-import com.wellnest.dto.RunThreadRequest;
 import com.wellnest.service.OpenAIService;
-import com.wellnest.dto.UserRequest;
+import com.wellnest.dto.CreateThreadRequest;
 import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,18 +20,13 @@ public class openAIController {
 
 
     @PostMapping("/chat/create")
-    public ResponseEntity<String> createThread(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<String> createThread(@RequestBody CreateThreadRequest createThreadRequest) {
 
         String threadId = openAIService.createThread();
-        openAIService.addMessage(threadId,userRequest.CreateMessage());
+        openAIService.addMessage(threadId, createThreadRequest.CreateMessage());
         return ResponseEntity.ok().body(threadId);
     }
 
-    @PostMapping("/chat/run")
-    public ResponseEntity<?> runThread(@RequestBody RunThreadRequest runThreadRequest) {
-            openAIService.runThread(runThreadRequest.getThreadId());
-            return ResponseEntity.ok().body("ok");
-    }
     @PostMapping("/chat/message")
     public ResponseEntity<?> addMessage(@RequestBody @Validated MessageRequest messageRequest){
         JSONArray jsonArray = openAIService.addMessage(messageRequest.getThreadId(), messageRequest.getMessage());
@@ -43,6 +37,15 @@ public class openAIController {
     @GetMapping("/chat/respond/{threadId}")
     public ResponseEntity<String> getRespond(@PathVariable String threadId){
         return ResponseEntity.ok().body(openAIService.getRespond(threadId));
+    }
+    @PostMapping ("/chat/respond/voice")
+    public ResponseEntity<byte[]> getVoice(@RequestBody String text){
+        byte[] audioBytes = openAIService.textToVoice(text);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("audio/mpeg"));
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(audioBytes);
     }
 
 

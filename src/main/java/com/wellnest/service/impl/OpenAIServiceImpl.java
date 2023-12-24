@@ -12,6 +12,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -27,8 +28,9 @@ public class OpenAIServiceImpl implements OpenAIService {
     public OpenAIServiceImpl(@Value("${API_KEY}") String apiKey) {
         this.apiKey = apiKey;
     }
+
     @Override
-    public String createAssistant(String name, String instructions, String model) throws IOException{
+    public String createAssistant(String name, String instructions, String model) throws IOException {
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost request = new HttpPost("https://api.openai.com/v1/assistants");
             request.setHeader("Content-Type", "application/json");
@@ -104,12 +106,11 @@ public class OpenAIServiceImpl implements OpenAIService {
                 .header("OpenAI-Beta", "assistants=v1")
                 .POST(HttpRequest.BodyPublishers.noBody())
                 .build();
-        try{
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        JSONObject jsonResponse = new JSONObject(response.body());
-        return jsonResponse.getString("id");
-        }
-        catch (Exception e){
+        try {
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JSONObject jsonResponse = new JSONObject(response.body());
+            return jsonResponse.getString("id");
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -120,7 +121,7 @@ public class OpenAIServiceImpl implements OpenAIService {
         String url = String.format("https://api.openai.com/v1/threads/%s/messages", threadId);
         String requestBody = String.format("{\"role\": \"user\", \"content\": \"%s\"}", message);
 
-     return "";
+        return "";
     }
 
     @Override
@@ -142,9 +143,9 @@ public class OpenAIServiceImpl implements OpenAIService {
             while (true) {
                 String status = getRunStatus(threadId, jsonResponse.getString("id"));
                 if ("completed".equals(status)) {
-                    return "ok";
+                    return jsonResponse.getString("id");
                 }
-                Thread.sleep(500);
+                Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -169,17 +170,17 @@ public class OpenAIServiceImpl implements OpenAIService {
                 .header("OpenAI-Beta", "assistants=v1")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
-        try{
+        try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             JSONObject jsonResponse = new JSONObject(response.body());
             return jsonResponse.getJSONArray("content");
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
 
     }
+
     @Override
     public String getRespond(String threadId) {
         runThread(threadId);
@@ -205,7 +206,8 @@ public class OpenAIServiceImpl implements OpenAIService {
 
     @Override
     public String getRunStatus(String threadId, String runId) {
-        String url = "https://api.openai.com/v1/threads/" + threadId + "/runs/"+ runId ;
+
+        String url = "https://api.openai.com/v1/threads/" + threadId + "/runs/" + runId;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -224,7 +226,33 @@ public class OpenAIServiceImpl implements OpenAIService {
             return null; // 或者返回一个错误信息
         }
     }
+
+    @Override
+    public byte[] textToVoice(String text) {
+        String url = "https://api.openai.com/v1/audio/speech";
+        String requestBody = String.format("{\"model\":\"tts-1\",\"voice\":\"alloy\",\"input\":\"%s\"}", text);
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
+                .build();
+        try {
+            HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+            byte[] audioBytes = response.body();
+            System.out.println(response.body());
+            return response.body();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+
+
+    }
 }
+
 
 
 

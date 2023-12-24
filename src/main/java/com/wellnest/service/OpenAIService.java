@@ -13,4 +13,5 @@ public interface OpenAIService {
     JSONArray addMessage(String threadId, String message);
     String getRespond(String threadId);
     String getRunStatus(String  threadId, String runId);
+    byte[] textToVoice(String text);
 }

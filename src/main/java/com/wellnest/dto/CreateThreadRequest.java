@@ -1,6 +1,6 @@
 package com.wellnest.dto;
 
-public class UserRequest {
+public class CreateThreadRequest {
 
     private String name;
     private int age;
