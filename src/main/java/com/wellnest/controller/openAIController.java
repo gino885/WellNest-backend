@@ -39,10 +39,9 @@ public class openAIController {
         return ResponseEntity.ok().body(openAIService.getRespond(threadId));
     }
     @PostMapping ("/chat/respond/voice")
-    public ResponseEntity<byte[]> getVoice(@RequestBody String text){
-        byte[] audioBytes = openAIService.textToVoice(text);
+    public ResponseEntity<byte[]> getVoice(@RequestBody @Validated MessageRequest messageRequest){
+        byte[] audioBytes = openAIService.textToSpeech(messageRequest.getThreadId(), messageRequest.getMessage());
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.parseMediaType("audio/mpeg"));
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(audioBytes);

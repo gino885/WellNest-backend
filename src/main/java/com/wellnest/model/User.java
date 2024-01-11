@@ -3,19 +3,19 @@ package com.wellnest.model;
 import java.util.Date;
 
 public class User {
-    private Integer UserId;
+    private Integer userId;
     private String email;
-
+    private String name;
     private String password;
     private Date createdDate;
     private Date lastModifiedDate;
 
     public Integer getUserId() {
-        return UserId;
+        return userId;
     }
 
     public void setUserId(Integer userId) {
-        UserId = userId;
+        userId = userId;
     }
 
     public String getEmail() {
@@ -32,6 +32,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Date getCreatedDate() {

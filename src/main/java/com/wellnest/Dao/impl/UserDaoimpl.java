@@ -2,6 +2,7 @@ package com.wellnest.Dao.impl;
 
 import com.wellnest.Dao.UserDao;
 import com.wellnest.RowMapper.UserRowMapper;
+import com.wellnest.dto.UpdateProfileRequest;
 import com.wellnest.dto.UserRegisterRequest;
 import com.wellnest.model.User;
 import com.wellnest.service.UserService;
@@ -12,10 +13,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class UserDaoimpl implements UserDao {
@@ -25,8 +23,8 @@ public class UserDaoimpl implements UserDao {
 
     @Override
     public User getUserById(Integer userId) {
-        String sql = "SELECT user_id, email, password, created_date, last_modified_date " +
-                "FROM user WHERE user_id = :userId";
+        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
+                "FROM user WHERE userId = :userId";
 
         Map<String,Object> map = new HashMap<>();
         map.put("userId", userId);
@@ -44,7 +42,7 @@ public class UserDaoimpl implements UserDao {
     @Override
     public User getUserByEmail(String email) {
 
-        String sql = "SELECT user_id, email, password, created_date, last_modified_date " +
+        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
                 "FROM user WHERE email = :email";
 
         Map<String,Object> map = new HashMap<>();
@@ -61,12 +59,13 @@ public class UserDaoimpl implements UserDao {
     }
 
     public Integer createUser(UserRegisterRequest userRegisterRequest){
-        String sql = "INSERT INTO user(email, password, created_date, last_modified_date) " +
-                "VALUES (:email, :password, :createdDate, :lastModifiedDate)";
+        String sql = "INSERT INTO user(email, password, name, createdDate, lastModifiedDate) " +
+                "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("email", userRegisterRequest.getEmail());
         map.put("password", userRegisterRequest.getPassword());
+        map.put("name", userRegisterRequest.getName());
 
         Date now = new Date();
         map.put("createdDate", now);
@@ -80,4 +79,45 @@ public class UserDaoimpl implements UserDao {
 
         return userId;
     }
+
+    public boolean editProfile(UpdateProfileRequest updateProfileRequest) {
+        String sql = "UPDATE user SET ";
+
+        Map<String, Object> paramMap = new HashMap<>();
+
+        // Check and add parameters to update
+        if (updateProfileRequest.getName() != null) {
+            sql += "name = :name, ";
+            paramMap.put("name", updateProfileRequest.getName());
+        }
+        if (updateProfileRequest.getPassword() != null) {
+            sql += "password = :password, ";
+            paramMap.put("password", updateProfileRequest.getPassword());
+        }
+        if (updateProfileRequest.getNickName() != null) {
+            sql += "nickName = :nickName, ";
+            paramMap.put("nickName", updateProfileRequest.getNickName());
+        }
+        if (updateProfileRequest.getCountry() != null) {
+            sql += "country = :country, ";
+            paramMap.put("country", updateProfileRequest.getCountry());
+        }
+        Date date = new Date();
+        sql += "lastModifiedDate = :lastModifiedDate, ";
+        paramMap.put("lastModifiedDate", date);
+        // Remove the last comma and space
+        sql = sql.substring(0, sql.length() - 2);
+
+        // Add WHERE clause
+        sql += " WHERE email = :email";
+        paramMap.put("email", updateProfileRequest.getEmail());
+
+        // Perform the update
+        int updated = namedParameterJdbcTemplate.update(sql, paramMap);
+
+        // Return true if the update was successful
+        return updated > 0;
+    }
+
+
 }

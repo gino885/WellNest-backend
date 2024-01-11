@@ -1,5 +1,6 @@
 package com.wellnest.controller;
 
+import com.wellnest.dto.UpdateProfileRequest;
 import com.wellnest.dto.UserLoginRequest;
 import com.wellnest.dto.UserRegisterRequest;
 import com.wellnest.model.User;
@@ -21,9 +22,7 @@ public class UserController {
     public ResponseEntity<User> register(@RequestBody @Valid UserRegisterRequest userRegisterRequest){
         Integer userId = userService.register(userRegisterRequest);
 
-        User user = userService.getUserById(userId);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.getUserById(userId));
     }
 
     @PostMapping("users/login")
@@ -31,5 +30,11 @@ public class UserController {
         User user = userService.login(userLoginRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(user);
+    }
+    @PostMapping("users/edit")
+    public ResponseEntity<Boolean> editProfile(@RequestBody @Valid UpdateProfileRequest updateProfileRequest){
+        Boolean status = userService.editProfile(updateProfileRequest);
+
+        return ResponseEntity.status(HttpStatus.OK).body(status);
     }
 }

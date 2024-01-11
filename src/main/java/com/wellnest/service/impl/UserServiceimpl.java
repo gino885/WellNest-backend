@@ -1,6 +1,7 @@
 package com.wellnest.service.impl;
 
 import com.wellnest.Dao.UserDao;
+import com.wellnest.dto.UpdateProfileRequest;
 import com.wellnest.dto.UserLoginRequest;
 import com.wellnest.dto.UserRegisterRequest;
 import com.wellnest.model.User;
@@ -66,5 +67,11 @@ public class UserServiceimpl implements UserService {
     public User getUserById(Integer userId) {
 
         return userDao.getUserById(userId);
+    }
+
+    @Override
+    public boolean editProfile(UpdateProfileRequest updateProfileRequest) {
+        return userDao.editProfile(updateProfileRequest);
+
     }
 }

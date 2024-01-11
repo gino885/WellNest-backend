@@ -3,14 +3,15 @@ package com.wellnest.dto;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
-public class UserRegisterRequest {
-    @NotBlank
+public class UpdateProfileRequest {
+
     @Email
+    @NotBlank
     private String email;
-    @NotBlank
     private String password;
-    @NotBlank
-    private String Name;
+    private String name;
+    private String nickName;
+    private String country;
 
     public String getEmail() {
         return email;
@@ -29,10 +30,26 @@ public class UserRegisterRequest {
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        this.name = name;
+    }
+
+    public String getNickName() {
+        return nickName;
+    }
+
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 }
