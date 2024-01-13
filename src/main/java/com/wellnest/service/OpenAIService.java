@@ -4,6 +4,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Map;
 
 public interface OpenAIService {
     String createThread();
@@ -12,5 +13,5 @@ public interface OpenAIService {
     JSONArray addMessage(String threadId, String message);
     String getRespond(String threadId);
     String getRunStatus(String  threadId, String runId);
-    byte[] textToSpeech(String threadId, String inputText);
+    Map<String, String> textToSpeech(String threadId, String inputText);
 }

@@ -18,6 +18,10 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 @Component
 public class OpenAIServiceImpl implements OpenAIService {
@@ -130,9 +134,11 @@ public class OpenAIServiceImpl implements OpenAIService {
                 .build();
 
         try {
+
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-            JSONObject jsonObject = new JSONObject(response.body());
+            JSONObject jsonObject = new JSONObject(response.body());;
             JSONArray dataArray = jsonObject.getJSONArray("data");
+
 
 // 初始化用於尋找最新消息的變量
             JSONObject latestMessage = null;
@@ -191,15 +197,17 @@ public class OpenAIServiceImpl implements OpenAIService {
         }
     }
 
-    public byte[] textToSpeech(String threadId, String inputText) {
+    public Map<String, String> textToSpeech(String threadId, String inputText) {
         addMessage(threadId, inputText);
+        System.out.println(inputText);
         HttpClient client = HttpClient.newHttpClient();
         String respond = getRespond(threadId);
+        Map<String, String> map = new HashMap<>();
         try {
         JSONObject requestBody = new JSONObject()
                 .put("model", "tts-1")
-                .put("voice", "alloy")
-                .put("input",  getRespond(threadId));
+                .put("voice", "onyx")
+                .put("input",  respond);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.openai.com/v1/audio/speech"))
                 .header("Authorization", "Bearer " + apiKey)
@@ -209,8 +217,14 @@ public class OpenAIServiceImpl implements OpenAIService {
 
 
             HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-            return response.body(); // 返回音频数据的字节数组
-        } catch (Exception e) {
+            String audio = Base64.getEncoder().encodeToString(response.body());
+            map.put("text", respond);
+            map.put("audio", audio);
+
+            return map;
+        }
+
+        catch (Exception e) {
             e.printStackTrace();
             return null; // 或处理异常
         }

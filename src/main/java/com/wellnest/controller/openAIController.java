@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @Validated
 public class openAIController {
@@ -39,12 +41,11 @@ public class openAIController {
         return ResponseEntity.ok().body(openAIService.getRespond(threadId));
     }
     @PostMapping ("/chat/respond/voice")
-    public ResponseEntity<byte[]> getVoice(@RequestBody @Validated MessageRequest messageRequest){
-        byte[] audioBytes = openAIService.textToSpeech(messageRequest.getThreadId(), messageRequest.getMessage());
-        HttpHeaders headers = new HttpHeaders();
+    public ResponseEntity<Map<String, String> > getVoice(@RequestBody @Validated MessageRequest messageRequest){
+        Map<String, String>  resultMap = openAIService.textToSpeech(messageRequest.getThreadId(), messageRequest.getMessage());
+
         return ResponseEntity.ok()
-                .headers(headers)
-                .body(audioBytes);
+                .body(resultMap);
     }
 
 
