@@ -14,4 +14,5 @@ public interface OpenAIService {
     String getRespond(String threadId);
     String getRunStatus(String  threadId, String runId);
     Map<String, String> textToSpeech(String threadId, String inputText);
+    Map<String, String> playHt(String threadId, String inputText);
 }

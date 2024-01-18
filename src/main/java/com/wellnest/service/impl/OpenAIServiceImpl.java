@@ -1,6 +1,7 @@
 package com.wellnest.service.impl;
 
 import com.wellnest.service.OpenAIService;
+import com.wellnest.service.PlayHtService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -111,7 +112,12 @@ public class OpenAIServiceImpl implements OpenAIService {
         try {
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             JSONObject jsonResponse = new JSONObject(response.body());
-            return jsonResponse.getJSONArray("content");
+            if(jsonResponse.getJSONArray("content") != null){
+                return jsonResponse.getJSONArray("content");
+            }
+            else {
+                return null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -206,7 +212,8 @@ public class OpenAIServiceImpl implements OpenAIService {
         try {
         JSONObject requestBody = new JSONObject()
                 .put("model", "tts-1")
-                .put("voice", "onyx")
+                .put("voice", "alloy")
+                .put("speed", 1.2)
                 .put("input",  respond);
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create("https://api.openai.com/v1/audio/speech"))
@@ -226,9 +233,23 @@ public class OpenAIServiceImpl implements OpenAIService {
 
         catch (Exception e) {
             e.printStackTrace();
-            return null; // 或处理异常
+            return null;
         }
     }
+
+    @Override
+    public Map<String, String> playHt(String threadId, String inputText) {
+        addMessage(threadId, inputText);
+        String respond = getRespond(threadId);
+        System.out.println(respond);
+        Map<String, String> map = new HashMap<>();
+        PlayHtService playHtService = new playHtServiceImpl();
+        String audioUrl = playHtService.getAudio(respond);
+        map.put("text", respond);
+        map.put("audioUrl", audioUrl);
+        return map;
+    }
+
 }
 
 
