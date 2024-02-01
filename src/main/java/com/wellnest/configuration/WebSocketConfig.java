@@ -16,6 +16,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        registry.addHandler(new AudioStreamWebSocketListener(azureSpeechService), "/audioStream").setAllowedOrigins("*");
+        registry.addHandler(new AudioStreamWebSocketListener(), "/audioStream").setAllowedOrigins("*");
     }
 }

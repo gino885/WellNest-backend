@@ -41,6 +41,7 @@ public class OpenAiController {
      */
     private static final Executor EXECUTOR = Executors.newFixedThreadPool(10);
     private static final Random RANDOM = new Random();
+    private StringBuilder textBuffer = new StringBuilder();
 
 
     /**
@@ -55,8 +56,10 @@ public class OpenAiController {
     public Flux<String> streamCompletions(String prompt, String user) {
         Assert.hasLength(user, "user不能为空");
         Assert.hasLength(prompt, "prompt不能为空");
+        Flux<String> respond = userChatService.send(MessageType.TEXT, prompt, user);
+
         try {
-            return userChatService.send(MessageType.TEXT, prompt, user);
+            return respond;
         } catch (CommonException e) {
             log.warn("e:{}", e.getMessage());
             e.printStackTrace();
