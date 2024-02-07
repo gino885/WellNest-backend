@@ -3,16 +3,19 @@ package com.wellnest.chatbot.controller;
 import com.alibaba.fastjson.JSON;
 import com.wellnest.chatbot.enmus.MessageType;
 import com.wellnest.chatbot.exception.CommonException;
+import com.wellnest.chatbot.service.AzureSpeechService;
 import com.wellnest.chatbot.service.UserChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.wellnest.chatbot.service.dto.Message;
 import com.wellnest.chatbot.util.R;
 import com.wellnest.chatbot.util.api.OpenAiWebClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyEmitter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -35,6 +38,7 @@ public class OpenAiController {
 
     private final UserChatService userChatService;
     private final OpenAiWebClient openAiWebClient;
+
     private static final String ERROR_MSG = "使用的人太多啦！等下再用吧！";
     /**
      * 建议更换为自己业务的线程池
@@ -70,6 +74,8 @@ public class OpenAiController {
             return getErrorRes(ERROR_MSG);
         }
     }
+
+
 
     /**
      * post方式，可以解决特殊符号，过长的文本等问题

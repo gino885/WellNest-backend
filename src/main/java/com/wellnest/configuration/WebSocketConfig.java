@@ -11,8 +11,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 @Configuration
 @EnableWebSocket
 public class WebSocketConfig implements WebSocketConfigurer {
-    @Autowired
-    private AzureSpeechService azureSpeechService;
+
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {

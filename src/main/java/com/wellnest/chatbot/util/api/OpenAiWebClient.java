@@ -63,7 +63,7 @@ public class OpenAiWebClient {
     public Flux<String> getChatResponse(String user, String prompt, Integer maxTokens, Double temperature, Double topP) {
         JSONObject params = new JSONObject();
 
-        params.put("model", "gpt-4");
+        params.put("model", "gpt-3.5-turbo");
         params.put("max_tokens", maxTokens);
         params.put("stream", true);
         params.put("temperature", temperature);

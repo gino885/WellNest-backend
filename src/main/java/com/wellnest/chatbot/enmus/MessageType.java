@@ -9,5 +9,5 @@ import lombok.RequiredArgsConstructor;
  **/
 @RequiredArgsConstructor
 public enum MessageType {
-    TEXT, IMAGE;
+    TEXT, IMAGE, AUDIO;
 }
