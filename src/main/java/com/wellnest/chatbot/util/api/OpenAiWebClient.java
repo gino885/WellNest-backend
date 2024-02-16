@@ -101,7 +101,7 @@ public class OpenAiWebClient {
         params.put("input", prompt);
         return webClient.post()
             .uri(ApiConstant.CONTENT_AUDIT)
-            .header(HttpHeaders.AUTHORIZATION, "Bearer " + "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")
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " +  System.getenv("OPENAI_API"))
             .bodyValue(params.toJSONString())
             .retrieve()
             .bodyToMono(JSONObject.class)

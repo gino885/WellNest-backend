@@ -17,15 +17,14 @@ public class AzureSpeechServiceImpl implements AzureSpeechService {
     private final ResponseBodyEmitter emitter = new ResponseBodyEmitter();
     @Override
     public byte[] textToSpeech(String text) {
-        log.info("1");
+
         try {
-            log.info("1");
             String filePath = getClass().getClassLoader().getResource("ssml.xml").getPath();
-            log.info("1");
+
             SpeechConfig speechConfig = SpeechConfig.fromSubscription(speechKey, speechRegion);
-            log.info("1");
+
             speechConfig.setSpeechSynthesisVoiceName("zh-CN-XiaoxiaoNeural");
-            log.info("1");
+
             String ssml = xmlToString(filePath);
 
             String ssml_text = ssml.replace("{TEXT}", text);

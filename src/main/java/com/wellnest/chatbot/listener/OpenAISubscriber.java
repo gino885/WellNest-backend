@@ -67,6 +67,9 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
         MessageRes res = MessageRes.builder().message("")
                 .end(Boolean.FALSE)
                 .messageType(messageType).build();
+        MessageRes audioRes = MessageRes.builder().message("")
+                .end(Boolean.FALSE)
+                .messageType(MessageType.AUDIO).build();
         if ("[DONE]".equals(data)) {
             log.info("OpenAI返回数据结束了");
             subscription.request(1);
@@ -76,19 +79,15 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
             emitter.complete();
         } else {
             // 檢查數據中是否包含句號或逗號
-            if (data.contains("，") || data.contains("。") || data.contains("!")) {
+            if (data.contains("，") || data.contains("。") || data.contains("!") || data.contains("？")) {
                 log.info("近來");
                 // 轉換累積的文本為語音
                 byte[] audioData = azureSpeechServiceimpl.textToSpeech(sentence.toString());
                 log.info(audioData.toString());
                 String encodedAudio = Base64.getEncoder().encodeToString(audioData);
 
-                // 封裝音頻數據到 JSON 對象並發送
-                MessageRes audioRes = MessageRes.builder()
-                        .messageType(MessageType.AUDIO)
-                        .message(encodedAudio)
-                        .end(Boolean.FALSE)
-                        .build();
+                audioRes.setMessage(encodedAudio);
+
                 emitter.next(JSON.toJSONString(R.success(audioRes)));
                 subscription.request(1);
 
