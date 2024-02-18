@@ -1,4 +1,4 @@
-package com.wellnest.user.RowMapper;
+package com.wellnest.user.rowMapper;
 
 import com.wellnest.user.model.User;
 import org.springframework.jdbc.core.RowMapper;

@@ -1,6 +1,6 @@
 package com.wellnest.user.service.impl;
 
-import com.wellnest.user.Dao.UserDao;
+import com.wellnest.user.dao.UserDao;
 import com.wellnest.user.dto.UpdateProfileRequest;
 import com.wellnest.user.dto.UserLoginRequest;
 import com.wellnest.user.dto.UserRegisterRequest;

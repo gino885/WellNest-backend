@@ -1,4 +1,4 @@
-package com.wellnest.user.Dao;
+package com.wellnest.user.dao;
 
 import com.wellnest.user.dto.UpdateProfileRequest;
 import com.wellnest.user.dto.UserRegisterRequest;
