@@ -1,7 +1,7 @@
-package com.wellnest.user.Dao.impl;
+package com.wellnest.user.dao.impl;
 
-import com.wellnest.user.Dao.UserDao;
-import com.wellnest.user.RowMapper.UserRowMapper;
+import com.wellnest.user.dao.UserDao;
+import com.wellnest.user.rowMapper.UserRowMapper;
 import com.wellnest.user.dto.UpdateProfileRequest;
 import com.wellnest.user.dto.UserRegisterRequest;
 import com.wellnest.user.model.User;
