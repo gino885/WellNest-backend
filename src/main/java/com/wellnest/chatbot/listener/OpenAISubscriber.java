@@ -38,6 +38,7 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
     private final Message questions;
     private final MessageType messageType;
     private final StringBuilder sentence = new StringBuilder();
+    private final StringBuilder audioSentnece = new StringBuilder();
 
     private AzureSpeechServiceImpl azureSpeechServiceimpl = new AzureSpeechServiceImpl();
 
@@ -79,9 +80,10 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
             emitter.complete();
         } else {
             // 檢查數據中是否包含句號或逗號
+
             if (data.contains("，") || data.contains("。") || data.contains("!") || data.contains("？")) {
-                log.info("近來");
                 // 轉換累積的文本為語音
+
                 byte[] audioData = azureSpeechServiceimpl.textToSpeech(sentence.toString());
                 log.info(audioData.toString());
                 String encodedAudio = Base64.getEncoder().encodeToString(audioData);
@@ -92,12 +94,15 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
                 subscription.request(1);
 
                 // 清空累積的數據
-                sentence.setLength(0);
+                audioSentnece.setLength(0);
             }
 
 
             OpenAiResponse openAiResponse = JSON.parseObject(data, OpenAiResponse.class);
             String content = openAiResponse.getChoices().get(0).getDelta().getContent();
+            if( !data.contains("#") ){
+                audioSentnece.append(content);
+            }
             sentence.append(content);
             log.info(sentence.toString());
             content = content == null ? "" : content;
