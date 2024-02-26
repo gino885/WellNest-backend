@@ -81,10 +81,10 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
         } else {
             // 檢查數據中是否包含句號或逗號
 
-            if (data.contains("，") || data.contains("。") || data.contains("!") || data.contains("？")) {
+            if (data.contains("#")) {
                 // 轉換累積的文本為語音
 
-                byte[] audioData = azureSpeechServiceimpl.textToSpeech(sentence.toString());
+                byte[] audioData = azureSpeechServiceimpl.textToSpeech(audioSentnece.toString());
                 log.info(audioData.toString());
                 String encodedAudio = Base64.getEncoder().encodeToString(audioData);
 
