@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -22,11 +23,14 @@ public class openAIController {
 
 
     @PostMapping("/chat/create")
-    public ResponseEntity<String> createThread(@RequestBody CreateThreadRequest createThreadRequest) {
+    public ResponseEntity<Map<String, String>> createThread(@RequestBody CreateThreadRequest createThreadRequest) {
 
         String threadId = openAIService.createThread();
         openAIService.addMessage(threadId, createThreadRequest.CreateMessage());
-        return ResponseEntity.ok().body(threadId);
+        
+        Map<String, String> response = new HashMap<>();
+        response.put("threadId", threadId);
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping("/chat/message")

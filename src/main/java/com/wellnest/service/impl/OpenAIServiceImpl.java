@@ -27,12 +27,12 @@ import java.util.Objects;
 @Component
 public class OpenAIServiceImpl implements OpenAIService {
 
-    private final String apiKey;
+    private final String apiKey = "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";
     private String assistant_id = "asst_aq76m7dKoN2Hze2dhgNiAuds";
 
-    public OpenAIServiceImpl(@Value("${API_KEY}") String apiKey) {
-        this.apiKey = apiKey;
-    }
+//    public OpenAIServiceImpl(@Value("${API_KEY}") String apiKey) {
+//        this.apiKey = apiKey;
+//    }
 
     @Override
     public String createThread() {

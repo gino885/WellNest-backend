@@ -1,6 +1,7 @@
 package com.wellnest.model;
 
 import java.util.Date;
+import java.util.List;
 
 public class User {
     private Integer userId;
@@ -9,13 +10,50 @@ public class User {
     private String password;
     private Date createdDate;
     private Date lastModifiedDate;
+    private Integer age;
+    private String gender;
+    private Integer avatar_num;
+    private List<Chat> chats;
+    
+    
+    public List<Chat> getChats() {
+		return chats;
+	}
 
-    public Integer getUserId() {
+	public void setChats(List<Chat> chats) {
+		this.chats = chats;
+	}
+
+	public Integer getAge() {
+		return age;
+	}
+
+	public void setAge(Integer age) {
+		this.age = age;
+	}
+
+	public String getGender() {
+		return gender;
+	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public Integer getAvatar_num() {
+		return avatar_num;
+	}
+
+	public void setAvatar_num(Integer avatar_num) {
+		this.avatar_num = avatar_num;
+	}
+
+	public Integer getUserId() {
         return userId;
     }
 
     public void setUserId(Integer userId) {
-        userId = userId;
+        this.userId = userId;
     }
 
     public String getEmail() {

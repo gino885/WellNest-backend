@@ -4,6 +4,8 @@ import com.wellnest.Dao.UserDao;
 import com.wellnest.RowMapper.UserRowMapper;
 import com.wellnest.dto.UpdateProfileRequest;
 import com.wellnest.dto.UserRegisterRequest;
+import com.wellnest.handleException.UserCreationException;
+import com.wellnest.model.Chat;
 import com.wellnest.model.User;
 import com.wellnest.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import com.wellnest.RowMapper.ChatRowMapper;
 
 import java.util.*;
 
@@ -42,7 +45,7 @@ public class UserDaoimpl implements UserDao {
     @Override
     public User getUserByEmail(String email) {
 
-        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
+    	String sql = "SELECT userId, email, password, name, gender, age, Avatar_num, createdDate, lastModifiedDate " +
                 "FROM user WHERE email = :email";
 
         Map<String,Object> map = new HashMap<>();
@@ -58,14 +61,18 @@ public class UserDaoimpl implements UserDao {
         }
     }
 
-    public Integer createUser(UserRegisterRequest userRegisterRequest){
-        String sql = "INSERT INTO user(email, password, name, createdDate, lastModifiedDate) " +
-                "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate)";
+    public Integer createUser(UserRegisterRequest userRegisterRequest) {
+        String sql = "INSERT INTO user(Name, Email, Password, Gender, Age, Avatar_num, CreatedDate, LastModifiedDate) " +
+                     "VALUES (:name, :email, :password, :gender, :age, :avatarNum, :createdDate, :lastModifiedDate)";
 
         Map<String, Object> map = new HashMap<>();
+        map.put("name", userRegisterRequest.getName());
         map.put("email", userRegisterRequest.getEmail());
         map.put("password", userRegisterRequest.getPassword());
-        map.put("name", userRegisterRequest.getName());
+        map.put("status", userRegisterRequest.getStatus()); // Added status
+        map.put("gender", userRegisterRequest.getGender()); // Added gender
+        map.put("age", userRegisterRequest.getAge());       // Added age
+        map.put("avatarNum", userRegisterRequest.getAvatarNum()); // Added avatarNum
 
         Date now = new Date();
         map.put("createdDate", now);
@@ -75,10 +82,34 @@ public class UserDaoimpl implements UserDao {
 
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
 
-        int userId = keyHolder.getKey().intValue();
-
-        return userId;
+        // Assuming keyHolder will have a key here, otherwise you might need additional error handling
+        Number key = keyHolder.getKey();
+        if (key != null) {
+            return key.intValue();
+        } else {
+            // Handle the case where keyHolder did not return a key
+            throw new UserCreationException("Unable to retrieve generated key for user.");
+        }
     }
+    
+    public void saveUserChatThread(Integer userId, String threadId) {
+        String sql = "INSERT INTO Chat (UserId, ThreadID) VALUES (:userId, :threadId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        params.put("threadId", threadId);
+        namedParameterJdbcTemplate.update(sql, params);
+    }
+    
+    @Override
+    public List<Chat> getChatsByUserId(Integer userId) {
+        String sql = "SELECT * FROM Chat WHERE UserID = :userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        return namedParameterJdbcTemplate.query(sql, params, new ChatRowMapper());
+    }
+
+
+
 
     public boolean editProfile(UpdateProfileRequest updateProfileRequest) {
         String sql = "UPDATE user SET ";
