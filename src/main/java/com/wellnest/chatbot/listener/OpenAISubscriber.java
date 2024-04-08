@@ -72,8 +72,16 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
                 .end(Boolean.FALSE)
                 .messageType(MessageType.AUDIO).build();
         if ("[DONE]".equals(data)) {
+
+            if (!audioSentnece.isEmpty() ) {
+                log.info(audioSentnece.toString());
+                byte[] audioData = azureSpeechServiceimpl.textToSpeech(audioSentnece.toString());
+                String encodedAudio = Base64.getEncoder().encodeToString(audioData);
+                audioRes.setMessage(encodedAudio);
+                emitter.next(JSON.toJSONString(R.success(audioRes)));
+                audioSentnece.setLength(0);
+            }
             log.info("OpenAI返回数据结束了");
-            subscription.request(1);
             res.setEnd(Boolean.TRUE);
             emitter.next(JSON.toJSONString(R.success(res)));
             completedCallBack.completed(questions, sessionId, sb.toString());
@@ -81,10 +89,10 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
         } else {
             // 檢查數據中是否包含句號或逗號
 
-            if (data.contains("，") || data.contains("。") || data.contains("!") || data.contains("？")) {
+            if (data.contains("，") || data.contains("。") || data.contains("！") || data.contains("？")) {
                 // 轉換累積的文本為語音
 
-                byte[] audioData = azureSpeechServiceimpl.textToSpeech(sentence.toString());
+                byte[] audioData = azureSpeechServiceimpl.textToSpeech(audioSentnece.toString());
                 log.info(audioData.toString());
                 String encodedAudio = Base64.getEncoder().encodeToString(audioData);
 
@@ -100,9 +108,10 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
 
             OpenAiResponse openAiResponse = JSON.parseObject(data, OpenAiResponse.class);
             String content = openAiResponse.getChoices().get(0).getDelta().getContent();
-            if( !data.contains("#") ){
-                audioSentnece.append(content);
+            if( !data.contains("#")  && content != null){
+               audioSentnece.append(content);
             }
+
             sentence.append(content);
             log.info(sentence.toString());
             content = content == null ? "" : content;
