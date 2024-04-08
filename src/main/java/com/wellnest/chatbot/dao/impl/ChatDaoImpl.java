@@ -18,13 +18,11 @@ public class ChatDaoImpl implements ChatDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Override
     public Integer creatChat(ChatCreateRequest chatCreateRequest) {
-        String sql = "INSERT INTO Chat(UUID, Date, Status, Content, UserID)" +
-                "VALUES (:uuid, :date, :status, :content, :userId)";
+        String sql = "INSERT INTO Chat(Date, Status, UserID)" +
+                "VALUES (:date, :status, :userId)";
 
         Map<String, Object> map = new HashMap<>();
-        map.put("uuid", chatCreateRequest.getUuid());
         map.put("status", chatCreateRequest.getStatus());
-        map.put("content", chatCreateRequest.getContent());
         map.put("userId", chatCreateRequest.getUserId());
 
         Date now = new Date();

@@ -19,12 +19,13 @@ import javax.validation.Valid;
 public class ChatController {
     @Autowired
     private ChatService chatService;
-    @PostMapping("/chat/create")
-    public ResponseEntity<?> creatChat(@RequestHeader ("Authorization") String authToken,
-                                       @RequestBody @Valid ChatCreateRequest chatCreateRequest) {
+    public ResponseEntity<?> createChat(@RequestHeader("Authorization") String authToken,
+                                        @RequestBody ChatCreateRequest chatCreateRequest) {
         if (authToken != null && authToken.startsWith("Bearer ")) {
-            String token = authToken.substring(7); // 移除"Bearer "前綴
-            String userId = getUserIdFromToken(token); // 解析Token以獲取userId
+            String token = authToken.substring(7);
+            String userId = getUserIdFromToken(token);
+
+
             chatCreateRequest.setUserId(userId);
 
             // 創建聊天記錄
@@ -35,9 +36,11 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
         }
     }
+
     private String getUserIdFromToken(String token) {
+        // 解析Token獲取userId, 這裡簡化處理, 實際應該使用更安全的方法
         return Jwts.parser()
-                .setSigningKey("userId")
+                .setSigningKey("secretKey")
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();

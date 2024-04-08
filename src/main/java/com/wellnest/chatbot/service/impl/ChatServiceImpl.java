@@ -12,13 +12,10 @@ public class ChatServiceImpl implements ChatService {
     ChatDao chatDao;
     @Override
     public Integer createChat(ChatCreateRequest chatCreateRequest) {
-        if (chatCreateRequest.getStatus() == null){
+        if (chatCreateRequest.getStatus() == null) {
             chatCreateRequest.setStatus("created");
         }
-        if(chatCreateRequest.getUserId() == null){
-            chatCreateRequest.setUserId("1");
-        }
-        System.out.println(chatCreateRequest.getUuid());
+
 
         return chatDao.creatChat(chatCreateRequest);
     }
