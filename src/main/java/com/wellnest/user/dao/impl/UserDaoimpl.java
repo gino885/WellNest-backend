@@ -22,8 +22,9 @@ public class UserDaoimpl implements UserDao {
 
     @Override
     public User getUserById(Integer userId) {
-        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
-                "FROM user WHERE userId = :userId";
+        // Correct the SQL query by using the correct column name "user_id" instead of "userId"
+        String sql = "SELECT user_id, email, password, name, created_date, last_modified_date " +
+                "FROM user WHERE user_id = :userId"; // Corrected from "userId" to "user_id"
 
         Map<String,Object> map = new HashMap<>();
         map.put("userId", userId);
@@ -38,10 +39,11 @@ public class UserDaoimpl implements UserDao {
         }
     }
 
+
     @Override
     public User getUserByEmail(String email) {
 
-        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
+        String sql = "SELECT user_id, email, password, name, created_date, last_modified_date " +
                 "FROM user WHERE email = :email";
 
         Map<String,Object> map = new HashMap<>();
@@ -58,7 +60,7 @@ public class UserDaoimpl implements UserDao {
     }
 
     public Integer createUser(UserRegisterRequest userRegisterRequest){
-        String sql = "INSERT INTO user(email, password, name, createdDate, lastModifiedDate) " +
+        String sql = "INSERT INTO user(email, password, name, created_date, last_modified_date) " +
                 "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate)";
 
         Map<String, Object> map = new HashMap<>();
@@ -67,17 +69,18 @@ public class UserDaoimpl implements UserDao {
         map.put("name", userRegisterRequest.getName());
 
         Date now = new Date();
-        map.put("createdDate", now);
-        map.put("lastModifiedDate", now);
+        map.put("createdDate", now); // Corrected from "created_date" to "createdDate"
+        map.put("lastModifiedDate", now); // Corrected from "last_modified_date" to "lastModifiedDate"
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
 
-        int userId = keyHolder.getKey().intValue();
+        int userId = Objects.requireNonNull(keyHolder.getKey()).intValue();
 
         return userId;
     }
+
 
     public boolean editProfile(UpdateProfileRequest updateProfileRequest) {
         String sql = "UPDATE user SET ";

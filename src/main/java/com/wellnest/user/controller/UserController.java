@@ -20,6 +20,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 
 import javax.validation.Valid;
 
+
 @RestController
 public class UserController {
     @Autowired
@@ -34,21 +35,32 @@ public class UserController {
     @PostMapping("users/login")
     public ResponseEntity<?> login(@RequestBody @Valid UserLoginRequest userLoginRequest){
         User user = userService.login(userLoginRequest);
-        if (user != null) {
+        System.out.println(user.getEmail());
+        System.out.println(user.getPassword());
+        System.out.println(user.getUserId());
+
+        if (user != null && user.getUserId() != null) { // 确保user不为null且userId也不为null
             String token = generateToken(String.valueOf(user.getUserId()));
-            Map<String, String> tokenResponse = new HashMap<>();
-            tokenResponse.put("token", token);
-            return ResponseEntity.ok(tokenResponse);
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("user_id", user.getUserId()); // 确保这里使用的是有效的userId
+            return ResponseEntity.ok(response);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         }
     }
+
+
     @PostMapping("users/edit")
     public ResponseEntity<Boolean> editProfile(@RequestBody @Valid UpdateProfileRequest updateProfileRequest){
         Boolean status = userService.editProfile(updateProfileRequest);
 
         return ResponseEntity.status(HttpStatus.OK).body(status);
     }
+
+    // Example secret key - replace this with a securely generated key stored in a secure location
+    private static final String SECRET_KEY = "8ac906886ef673c62634bddb4036df362b613edefb636e7c69dcf904f7a5353d";
+
     private String generateToken(String userId) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
@@ -59,7 +71,7 @@ public class UserController {
                 .setSubject(userId)
                 .setIssuedAt(now)
                 .setExpiration(exp)
-                .signWith(SignatureAlgorithm.HS512, userId)
+                .signWith(SignatureAlgorithm.HS512, SECRET_KEY.getBytes()) // Use SECRET_KEY constant
                 .compact();
     }
 }
