@@ -28,14 +28,10 @@ public class AzureSpeechServiceImpl implements AzureSpeechService {
             String ssml = xmlToString(filePath);
 
             String ssml_text = ssml.replace("{TEXT}", text);
-
-            log.info("1");
             SpeechSynthesizer synthesizer = new SpeechSynthesizer(speechConfig, null);
             SpeechSynthesisResult result = synthesizer.SpeakSsml(ssml_text);
-            AudioDataStream stream = AudioDataStream.fromResult(result);
-            log.info("2");
-            stream.saveToWavFile("C:\\Users\\USER\\IdeaProjects\\output.wav");
-            log.info("3");
+
+
             if (result.getReason() == ResultReason.SynthesizingAudioCompleted) {
                 log.info("语音合成成功");
 

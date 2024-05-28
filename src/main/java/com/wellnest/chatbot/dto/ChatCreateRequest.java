@@ -2,21 +2,22 @@ package com.wellnest.chatbot.dto;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
 public class ChatCreateRequest {
-    @NotBlank
-    private String uuid;
 
+    private Date date;
+    @NotBlank
     private String status;
-    private String content;
+    @NotBlank
     private String userId;
 
-    public String getUuid() {
-        return uuid;
+    public Date getDate() {
+        return date;
     }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setDate(Date date) {
+        this.date = date;
     }
 
     public String getStatus() {
@@ -25,14 +26,6 @@ public class ChatCreateRequest {
 
     public void setStatus(String status) {
         this.status = status;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public String getUserId() {

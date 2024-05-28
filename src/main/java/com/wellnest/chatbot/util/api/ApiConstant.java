@@ -14,5 +14,4 @@ public interface ApiConstant {
 
     String CONTENT_AUDIT = HOST + "/v1/moderations";
 
-    String IMAGE_API = HOST + "/v1/images/generations";
 }

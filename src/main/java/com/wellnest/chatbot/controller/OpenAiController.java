@@ -82,7 +82,7 @@ public class OpenAiController {
      *
      * @return
      */
-    @PostMapping(value = "/chat/message", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "/message", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> streamCompletionsPost(@RequestBody Map<String, String> param) {
         String user = param.get("user");
         String prompt = param.get("prompt");
