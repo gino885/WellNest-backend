@@ -4,9 +4,7 @@ import java.util.Date;
 
 public class Chat {
     private Integer ChatId;
-    private String UUId;
     private String status;
-    private String content;
     private Date date;
     private Integer userId;
 
@@ -18,13 +16,6 @@ public class Chat {
         ChatId = chatId;
     }
 
-    public String getUUId() {
-        return UUId;
-    }
-
-    public void setUUId(String UUId) {
-        this.UUId = UUId;
-    }
 
     public String getStatus() {
         return status;
@@ -34,13 +25,6 @@ public class Chat {
         this.status = status;
     }
 
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 
     public java.util.Date getDate() {
         return date;

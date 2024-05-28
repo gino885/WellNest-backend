@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
-public class UserDaoimpl implements UserDao {
+public class UserDaoImpl implements UserDao {
 
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -23,7 +23,7 @@ public class UserDaoimpl implements UserDao {
     @Override
     public User getUserById(Integer userId) {
         String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
-                "FROM user WHERE userId = :userId";
+                "FROM User WHERE userId = :userId";
 
         Map<String,Object> map = new HashMap<>();
         map.put("userId", userId);
@@ -42,7 +42,7 @@ public class UserDaoimpl implements UserDao {
     public User getUserByEmail(String email) {
 
         String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
-                "FROM user WHERE email = :email";
+                "FROM User WHERE email = :email";
 
         Map<String,Object> map = new HashMap<>();
         map.put("email", email);
@@ -58,7 +58,7 @@ public class UserDaoimpl implements UserDao {
     }
 
     public Integer createUser(UserRegisterRequest userRegisterRequest){
-        String sql = "INSERT INTO user(email, password, name, createdDate, lastModifiedDate) " +
+        String sql = "INSERT INTO User(email, password, name, createdDate, lastModifiedDate) " +
                 "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate)";
 
         Map<String, Object> map = new HashMap<>();

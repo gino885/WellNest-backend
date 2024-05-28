@@ -25,7 +25,6 @@ public class UserServiceimpl implements UserService {
     @Override
     public User login(UserLoginRequest userLoginRequest) {
         User user = userDao.getUserByEmail(userLoginRequest.getEmail());
-
         //檢查user是否存在
         if(user == null){
             log.warn("該email {} 尚未註冊", userLoginRequest.getEmail());

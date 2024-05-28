@@ -11,12 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+
+import java.security.Key;
+import java.util.Date;
 
 import javax.validation.Valid;
 
@@ -24,6 +27,10 @@ import javax.validation.Valid;
 public class UserController {
     @Autowired
     private UserService userService;
+    String secretKey = System.getenv("JWT_SECRET_KEY");
+    private Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
+
+
     @PostMapping("/users/register")
     public ResponseEntity<User> register(@RequestBody @Valid UserRegisterRequest userRegisterRequest){
         Integer userId = userService.register(userRegisterRequest);
@@ -49,17 +56,18 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK).body(status);
     }
-    private String generateToken(String userId) {
+    public String generateToken(String userId) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-        long expMillis = nowMillis + 3600000; // Token有效期1小时
+        long expMillis = nowMillis + 3600000;
         Date exp = new Date(expMillis);
 
         return Jwts.builder()
                 .setSubject(userId)
                 .setIssuedAt(now)
                 .setExpiration(exp)
-                .signWith(SignatureAlgorithm.HS512, userId)
+                .signWith(key)
                 .compact();
     }
 }
+
