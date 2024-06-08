@@ -2,8 +2,8 @@ package com.wellnest.chatbot.model;
 import com.wellnest.user.model.User;
 import jakarta.persistence.*;
 import java.util.Date;
-@Entity // 标记这个类为JPA实体
-@Table(name = "chat") // 指定映射到数据库表的名称
+@Entity
+@Table(name = "chat")
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

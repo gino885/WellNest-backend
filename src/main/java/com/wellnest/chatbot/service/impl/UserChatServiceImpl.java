@@ -45,12 +45,11 @@ public class UserChatServiceImpl implements UserChatService {
     @Override
     public Flux<String> send(MessageType type, String content, String sessionId) {
 
-            // 初始化用户歷史紀錄（如果尚未存在）
             userSessionUtil.initializeHistory(sessionId);
 
         Message userMessage = new Message(MessageType.TEXT, UserType.USER, content);
         int currentToken = (int) (content.length() / TOKEN_CONVERSION_RATE);
-        //获取历史对话 尽量保证不超过4096个tokens
+
         List<Message> history = userSessionUtil.getHistory(sessionId, MessageType.TEXT, (int) (CHINESE_LENGTH - currentToken));
         log.info("history:{}", history);
         String historyDialogue = history.stream().map(e -> String.format(e.getUserType().getCode(), e.getMessage())).collect(Collectors.joining());
