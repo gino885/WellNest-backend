@@ -22,43 +22,40 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserById(Integer userId) {
-        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
-                "FROM User WHERE userId = :userId";
+        String sql = "SELECT user_id, email, password, name, created_date, last_modified_date, gender, age " +
+                "FROM user WHERE user_id = :userId";
 
-        Map<String,Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("userId", userId);
 
         List<User> userList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
 
-        if(userList.size() > 0) {
+        if (userList.size() > 0) {
             return userList.get(0);
-        }
-        else{
+        } else {
             return null;
         }
     }
 
     @Override
     public User getUserByEmail(String email) {
+        String sql = "SELECT user_id, email, password, name, created_date, last_modified_date, gender, age " +
+                "FROM user WHERE email = :email";
 
-        String sql = "SELECT userId, email, password, name, createdDate, lastModifiedDate " +
-                "FROM User WHERE email = :email";
-
-        Map<String,Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("email", email);
 
         List<User> userList = namedParameterJdbcTemplate.query(sql, map, new UserRowMapper());
 
-        if(userList.size() > 0) {
+        if (userList.size() > 0) {
             return userList.get(0);
-        }
-        else{
+        } else {
             return null;
         }
     }
 
-    public Integer createUser(UserRegisterRequest userRegisterRequest){
-        String sql = "INSERT INTO User(email, password, name, createdDate, lastModifiedDate) " +
+    public Integer createUser(UserRegisterRequest userRegisterRequest) {
+        String sql = "INSERT INTO user (email, password, name, created_date, last_modified_date) " +
                 "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate)";
 
         Map<String, Object> map = new HashMap<>();
@@ -71,12 +68,9 @@ public class UserDaoImpl implements UserDao {
         map.put("lastModifiedDate", now);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
-
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map), keyHolder);
 
-        int userId = keyHolder.getKey().intValue();
-
-        return userId;
+        return keyHolder.getKey().intValue();
     }
 
     public boolean editProfile(UpdateProfileRequest updateProfileRequest) {
@@ -94,7 +88,7 @@ public class UserDaoImpl implements UserDao {
             paramMap.put("password", updateProfileRequest.getPassword());
         }
         if (updateProfileRequest.getNickName() != null) {
-            sql += "nickName = :nickName, ";
+            sql += "nick_name = :nickName, ";
             paramMap.put("nickName", updateProfileRequest.getNickName());
         }
         if (updateProfileRequest.getCountry() != null) {
@@ -102,8 +96,9 @@ public class UserDaoImpl implements UserDao {
             paramMap.put("country", updateProfileRequest.getCountry());
         }
         Date date = new Date();
-        sql += "lastModifiedDate = :lastModifiedDate, ";
+        sql += "last_modified_date = :lastModifiedDate, ";
         paramMap.put("lastModifiedDate", date);
+
         // Remove the last comma and space
         sql = sql.substring(0, sql.length() - 2);
 
@@ -117,6 +112,4 @@ public class UserDaoImpl implements UserDao {
         // Return true if the update was successful
         return updated > 0;
     }
-
-
 }
