@@ -1,17 +1,22 @@
 package com.wellnest.user.dto;
 
+import com.wellnest.user.enmus.Gender;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 public class UpdateProfileRequest {
 
-    @Email
     @NotBlank
+    @Email
     private String email;
+    @NotBlank
     private String password;
+    @NotBlank
     private String name;
-    private String nickName;
-    private String country;
+
+    private Gender gender;
+    private Integer age;
 
     public String getEmail() {
         return email;
@@ -37,19 +42,19 @@ public class UpdateProfileRequest {
         this.name = name;
     }
 
-    public String getNickName() {
-        return nickName;
+    public Gender getGender() {
+        return gender;
     }
 
-    public void setNickName(String nickName) {
-        this.nickName = nickName;
+    public void setGender(Gender gender) {
+        this.gender = gender;
     }
 
-    public String getCountry() {
-        return country;
+    public Integer getAge() {
+        return age;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setAge(Integer age) {
+        this.age = age;
     }
 }

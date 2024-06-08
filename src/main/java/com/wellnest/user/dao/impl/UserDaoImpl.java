@@ -55,13 +55,15 @@ public class UserDaoImpl implements UserDao {
     }
 
     public Integer createUser(UserRegisterRequest userRegisterRequest) {
-        String sql = "INSERT INTO user (email, password, name, created_date, last_modified_date) " +
-                "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate)";
+        String sql = "INSERT INTO user (email, password, name, created_date, last_modified_date, gender, age) " +
+                "VALUES (:email, :password, :name, :createdDate, :lastModifiedDate, :gender, :age)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("email", userRegisterRequest.getEmail());
         map.put("password", userRegisterRequest.getPassword());
         map.put("name", userRegisterRequest.getName());
+        map.put("gender", userRegisterRequest.getGender().name()); // Ensure gender is stored as a string
+        map.put("age", userRegisterRequest.getAge());
 
         Date now = new Date();
         map.put("createdDate", now);
@@ -73,12 +75,12 @@ public class UserDaoImpl implements UserDao {
         return keyHolder.getKey().intValue();
     }
 
+
     public boolean editProfile(UpdateProfileRequest updateProfileRequest) {
         String sql = "UPDATE user SET ";
 
         Map<String, Object> paramMap = new HashMap<>();
 
-        // Check and add parameters to update
         if (updateProfileRequest.getName() != null) {
             sql += "name = :name, ";
             paramMap.put("name", updateProfileRequest.getName());
@@ -87,29 +89,23 @@ public class UserDaoImpl implements UserDao {
             sql += "password = :password, ";
             paramMap.put("password", updateProfileRequest.getPassword());
         }
-        if (updateProfileRequest.getNickName() != null) {
-            sql += "nick_name = :nickName, ";
-            paramMap.put("nickName", updateProfileRequest.getNickName());
+        if (updateProfileRequest.getGender() != null) {
+            sql += "gender = :gender, ";
+            paramMap.put("gender", updateProfileRequest.getGender().name());
         }
-        if (updateProfileRequest.getCountry() != null) {
-            sql += "country = :country, ";
-            paramMap.put("country", updateProfileRequest.getCountry());
+        if (updateProfileRequest.getAge() != null) {
+            sql += "age = :age, ";
+            paramMap.put("age", updateProfileRequest.getAge());
         }
         Date date = new Date();
-        sql += "last_modified_date = :lastModifiedDate, ";
+        sql += "last_modified_date = :lastModifiedDate ";
         paramMap.put("lastModifiedDate", date);
 
-        // Remove the last comma and space
-        sql = sql.substring(0, sql.length() - 2);
-
-        // Add WHERE clause
-        sql += " WHERE email = :email";
+        sql += "WHERE email = :email";
         paramMap.put("email", updateProfileRequest.getEmail());
 
-        // Perform the update
         int updated = namedParameterJdbcTemplate.update(sql, paramMap);
 
-        // Return true if the update was successful
         return updated > 0;
     }
 }
