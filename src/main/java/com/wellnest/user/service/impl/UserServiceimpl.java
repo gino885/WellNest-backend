@@ -59,6 +59,7 @@ public class UserServiceimpl implements UserService {
         String hashedPassword = DigestUtils.md5DigestAsHex(userRegisterRequest.getPassword().getBytes());
         userRegisterRequest.setPassword(hashedPassword);
 
+
         return userDao.createUser(userRegisterRequest);
     }
 
