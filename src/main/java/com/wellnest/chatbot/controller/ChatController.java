@@ -1,6 +1,7 @@
 package com.wellnest.chatbot.controller;
 
 import com.wellnest.chatbot.dto.ChatCreateRequest;
+import com.wellnest.chatbot.dto.MessageRequeat;
 import com.wellnest.chatbot.service.ChatService;
 import com.wellnest.user.dto.UserRegisterRequest;
 import com.wellnest.user.model.User;
@@ -41,6 +42,46 @@ public class ChatController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
         }
     }
+    @PostMapping("/message/create")
+    public ResponseEntity<?> createMessage(@RequestHeader("Authorization") String authToken,
+                                           @RequestBody MessageRequeat messageRequeat) {
+        if (authToken != null && authToken.startsWith("Bearer ")) {
+            String token = authToken.substring(7);
+            String userId = getUserIdFromToken(token);
+
+            messageRequeat.setChatId(chatService.getChatId(Integer.parseInt(userId)));
+            messageRequeat.setUserId(Integer.parseInt(userId));
+
+            chatService.createMessage(messageRequeat);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
+        }
+    }
+
+    @PostMapping("/chat/finish")
+    public ResponseEntity<?> finishChat(@RequestHeader("Authorization") String authToken,
+                                        @RequestBody ChatCreateRequest chatCreateRequest) {
+        if (authToken != null && authToken.startsWith("Bearer ")) {
+            String token = authToken.substring(7);
+            String userId = getUserIdFromToken(token);
+
+            MessageRequeat messageRequeat = new MessageRequeat();
+            messageRequeat.setContent(chatCreateRequest.getContent());
+            messageRequeat.setChatId(chatService.getChatId(Integer.parseInt(userId)));
+            messageRequeat.setUserId(Integer.parseInt(userId));
+            chatCreateRequest.setUserId(userId);
+            chatService.createMessage(messageRequeat);
+            chatService.finishChat(chatCreateRequest);
+
+
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
+        }
+    }
+
     private String getUserIdFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(key)

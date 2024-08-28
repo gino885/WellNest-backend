@@ -1,22 +1,24 @@
 package com.wellnest.chatbot.model;
+
 import com.wellnest.user.model.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
+
 @Entity
-@Table(name = "chat")
+@Table(name = "message")
 @Data
 @Builder
-public class Chat {
+public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_id")
+    @Column(name = "message_id")
     private int chatId;
 
-    @Column(name = "status")
-    private String status;
+    @Column(name = "content")
+    private String content;
 
     @Column(name = "date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -25,5 +27,9 @@ public class Chat {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "chat_id")
+    private Chat chat;
 
 }
