@@ -1,53 +1,33 @@
 package com.wellnest.chatbot.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
-@Entity // 標記為JPA實體
-@Table(name = "mission") // 定義對應的表名為mission
+import java.util.HashSet;
+import java.util.Set;
+
+@Data
+@Entity
+@Table(name = "mission")
 public class Mission {
 
-    @Id // 标记为主键
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 标识符生成策略为数据库自增
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "mission_id")
     private int missionID;
 
-    @Column(nullable = false)
-    private String emotion;
-
-    @Column(nullable = false)
+    @Column(name = "content")
     private String content;
 
-    @Column(nullable = false)
+    @Column(name = "difficulty")
     private int difficulty;
 
-    public int getMissionID() {
-        return missionID;
-    }
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "mission_emotion",
+            joinColumns = @JoinColumn(name = "mission_id"),
+            inverseJoinColumns = @JoinColumn(name = "emotion_id")
+    )
+    private Set<Emotion> emotions = new HashSet<>();
 
-    public void setMissionID(int missionID) {
-        this.missionID = missionID;
-    }
-
-    public String getEmotion() {
-        return emotion;
-    }
-
-    public void setEmotion(String emotion) {
-        this.emotion = emotion;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public int getDifficulty() {
-        return difficulty;
-    }
-
-    public void setDifficulty(int difficulty) {
-        this.difficulty = difficulty;
-    }
 }

@@ -19,17 +19,16 @@ public class MissionDaoImpl implements MissionDao {
         @Override
         public Mission mapRow(ResultSet rs, int rowNum) throws SQLException {
             Mission mission = new Mission();
-            mission.setMissionID(rs.getInt("missionID"));
-            mission.setEmotion(rs.getString("emotion"));
+            mission.setMissionID(rs.getInt("mission_id"));
             mission.setContent(rs.getString("content"));
             mission.setDifficulty(rs.getInt("difficulty"));
             return mission;
         }
     }
 
-    public Mission findByEmotionByDifficulty(String emotion, int difficulty) {
-        String sql = "SELECT * FROM Mission WHERE emotion = ? AND difficulty = ? ORDER BY RAND() LIMIT 1";
-        List<Mission> missions = jdbcTemplate.query(sql, new Object[]{emotion, difficulty}, new MissionMapper());
-        return missions.isEmpty() ? null : missions.get(0);
+    public List<Mission> findByDifficulty(int difficulty) {
+        String sql = "SELECT * FROM mission WHERE difficulty = ?";
+
+        return jdbcTemplate.query(sql, new Object[]{difficulty}, new MissionMapper());
     }
 }
