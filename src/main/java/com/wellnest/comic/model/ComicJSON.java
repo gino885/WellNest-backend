@@ -19,9 +19,6 @@ public class ComicJSON {
         @JsonProperty("comic_description")
         private String comicDescription;
 
-        @JsonProperty("ref_image")
-        private String refImage;
-
         @JsonProperty("character_description")
         private String characterDescription;
 
@@ -51,5 +48,21 @@ public class ComicJSON {
 
         @JsonProperty("style_strength_ratio")
         private Integer style_strengthRatio;
+
+        @JsonProperty("num_ids")
+        private Integer numIds;
+
+        @JsonProperty("sa32_setting")
+        private Double sa32Setting;
+
+        @JsonProperty("sa64_setting")
+        private Double sa64Setting;
+
+        @JsonProperty("guidance_scale")
+        private Integer guidanceScale;
+
+        @JsonProperty("output_quality")
+        private Integer outputQuality;
+
     }
 }

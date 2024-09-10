@@ -1,16 +1,16 @@
 package com.wellnest.chatbot.dto;
 
-import javax.validation.constraints.Email;
+import jakarta.persistence.criteria.CriteriaBuilder;
+
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
-public class ChatCreateRequest {
-
+public class MessageRequeat {
     private Date date;
-    private String status;
     @NotBlank
-    private String userId;
-
+    private Integer userId;
+    @NotBlank
+    private Integer chatId;
     private String content;
 
     public Date getDate() {
@@ -21,22 +21,21 @@ public class ChatCreateRequest {
         this.date = date;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
+    public Integer getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Integer chatId) {
+        this.chatId = chatId;
+    }
 
     public String getContent() {
         return content;

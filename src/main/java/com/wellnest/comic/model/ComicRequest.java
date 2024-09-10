@@ -7,6 +7,8 @@ import lombok.Data;
 @Builder
 public class ComicRequest {
     private String comicDescription;
-    private String refImageUrl;
     private String characterDescription;
+    private String narration;
+    private String[] caption;
+    private String styleName;
 }
