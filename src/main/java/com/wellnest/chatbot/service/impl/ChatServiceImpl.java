@@ -30,8 +30,7 @@ public class ChatServiceImpl implements ChatService {
 
     @Override
     public void finishChat(ChatCreateRequest chatCreateRequest) {
-       chatCreateRequest.setStatus("completed");
 
-        chatDao.finishChat(chatCreateRequest);
+        chatDao.finishChat(chatCreateRequest.getUserId(), "completed");
     }
 }

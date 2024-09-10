@@ -56,7 +56,6 @@ public class UserChatServiceImpl implements UserChatService {
 
         String prompt = StringUtils.hasLength(historyDialogue) ? String.format("%sQ:%s\nA: ", historyDialogue, content) : content;
 
-
         log.info("prompt:{}", prompt);
         return Flux.create(emitter -> {
             OpenAISubscriber subscriber = new OpenAISubscriber(emitter, sessionId, this, userMessage);
@@ -88,4 +87,9 @@ public class UserChatServiceImpl implements UserChatService {
         log.info("清除历史记录 sessionId:{}", sessionId);
         userSessionUtil.clearHistory(sessionId);
     }
+
+    public void getRespoond (String prompt){
+        openAiWebClient.getChatResponse(null, prompt, null, null, null);
+    }
+
 }

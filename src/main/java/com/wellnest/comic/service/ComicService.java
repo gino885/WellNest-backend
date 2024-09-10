@@ -15,8 +15,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Component;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -29,31 +34,29 @@ public class ComicService {
     private static final String API_URL = "https://api.replicate.com/v1/predictions";
     private static final String API_TOKEN = System.getenv("REPLICATE_API_TOKEN");
 
-    private static final String PIC_URL = "https://replicate.delivery/pbxt/KrYifi1qCInaAdHZqMlSY0BN5O3vegkLfU8fRCBKu3iqbKXL/1.jpeg";
-
-    public List generateComic(ComicRequest comicRequest) throws JsonProcessingException, IOException{
+    public List<String> generateComic(String description) throws JsonProcessingException, IOException {
         String version = "39c85f153f00e4e9328cb3035b94559a8ec66170eb4c0618c07b16528bf20ac2";
-        int numLines = comicRequest.getCharacterDescription().split("\n").length;
-        System.out.println(comicRequest.getCharacterDescription().split("\n"));
+        int numLines = description.split("\n").length;
+        System.out.println(description.split("\n"));
         int numIds = Math.min(3, numLines);
-        System.out.printf("numlines：%s, numIds：%s",numLines, numIds);
+        System.out.printf("numlines：%s, numIds：%s", numLines, numIds);
 
         ComicJSON.InputParams inputParams = ComicJSON.InputParams.builder()
-                .comicDescription(comicRequest.getComicDescription())
-                .characterDescription(comicRequest.getCharacterDescription())
+                .comicDescription(description)
+                .characterDescription("a man, wearing black suit")
                 .sdModel("Unstable")
-                .numSteps(25)
-                .styleName(comicRequest.getStyleName())
+                .numSteps(30)
+                .styleName("Disney Charactor")
                 .comicStyle("Classic Comic Style")
                 .imageWidth(512)
                 .imageHeight(512)
                 .outputFormat("webp")
                 .negativePrompt("bad anatomy, bad hands, missing fingers, extra fingers, three hands, three legs, bad arms, missing legs, missing arms, poorly drawn face, bad face, fused face, cloned face, three crus, fused feet, fused thigh, extra crus, ugly fingers, horn, cartoon, cg, 3d, unreal, animate, amputation, disconnected limbs")
                 .style_strengthRatio(20)
-                .numIds(3)
+                .numIds(4)
                 .guidanceScale(5)
-                .sa32Setting(0.5)
-                .sa64Setting(0.5)
+                .sa32Setting(0.6)
+                .sa64Setting(0.6)
                 .outputQuality(80)
                 .build();
 
@@ -73,7 +76,6 @@ public class ComicService {
                 .addHeader("Authorization", "Bearer " + API_TOKEN)
                 .addHeader("Content-Type", "application/json")
                 .build();
-        System.out.println(API_TOKEN);
         String predictionId;
         try (Response response = okHttpClient.newCall(request).execute()) {
             if (response.isSuccessful()) {
@@ -104,7 +106,7 @@ public class ComicService {
     public List<String> pollPredictionStatus(String predictionId) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> outputUrls = new ArrayList<>();
-
+        List<String> savedFilePaths = new ArrayList<>();
         while (true) {
             Request request = new Request.Builder()
                     .url("https://api.replicate.com/v1/predictions/" + predictionId)
@@ -124,6 +126,20 @@ public class ComicService {
                     System.out.println(jsonNode.path("output"));
                     jsonNode.path("output").path("individual_images").forEach(urlNode -> outputUrls.add(urlNode.asText()));
                     System.out.println(outputUrls);
+
+                    List<Integer> customOrder = Arrays.asList(3, 2, 1, 0);
+
+                    int index = 0;
+                    for (int i : customOrder) {
+                        if (i < outputUrls.size()) {
+                            savedFilePaths.add(saveImageFromUrl(outputUrls.get(i), index++));
+                        }
+                    }
+
+                    for (int i = customOrder.size(); i < outputUrls.size(); i++) {
+                        savedFilePaths.add(saveImageFromUrl(outputUrls.get(i), index++));
+                    }
+
                     break;
                 } else if ("failed".equals(status) || "canceled".equals(status)) {
                     throw new IOException("Prediction failed.");
@@ -137,29 +153,43 @@ public class ComicService {
                 throw new IOException("Polling interrupted", e);
             }
         }
-        return outputUrls;
+        return savedFilePaths;
+    }
+    private String saveImageFromUrl(String imageUrl, int index) throws IOException {
+        BufferedImage image = downloadImageFromUrl(imageUrl);
+        if (image != null) {
+            return saveImageToFile(image, index);
+        }
+        return null;
     }
 
-
-
-    private String parseStatus(String responseBody) {
+    private BufferedImage downloadImageFromUrl(String imageUrl) {
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            return objectMapper.readTree(responseBody).get("status").asText();
+            URL url = new URL(imageUrl);
+            return ImageIO.read(url);
         } catch (IOException e) {
-            logger.error("Failed to parse status", e);
+            e.printStackTrace();
             return null;
         }
     }
 
-    private String parseOutput(String responseBody) {
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode outputNode = objectMapper.readTree(responseBody).get("output");
-            return outputNode != null ? outputNode.asText() : null;
-        } catch (IOException e) {
-            logger.error("Failed to parse output", e);
-            return null;
+    private String saveImageToFile(BufferedImage image, int index) throws IOException {
+        String directoryPath = "src/picture";
+        File directory = new File(directoryPath);
+
+        if (!directory.exists() && !directory.mkdirs()) {
+            System.err.println("Failed to create directory: " + directoryPath);
+            throw new IOException("Failed to create directory: " + directoryPath);
         }
+
+        String filePath = directoryPath + "/comic_" + index + ".webp";
+        File outputfile = new File(filePath);
+
+        if (!ImageIO.write(image, "webp", outputfile)) {
+            throw new IOException("Failed to save image as webp: " + filePath);
+        }
+        System.out.println("filePath" + filePath);
+        return outputfile.getAbsolutePath();
     }
+
 }

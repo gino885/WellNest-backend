@@ -86,12 +86,12 @@ public class ChatDaoImpl implements ChatDao {
     }
 
     @Override
-    public void finishChat(ChatCreateRequest chatCreateRequest) {
+    public void finishChat(String userId, String status) {
         String sql = "UPDATE chat SET status = :status, date = :date WHERE chat_id = :chatId";
 
         Map<String, Object> map = new HashMap<>();
-        map.put("chatId", getChatId(Integer.parseInt(chatCreateRequest.getUserId())));
-        map.put("status", "completed");
+        map.put("chatId", getChatId(Integer.parseInt(userId)));
+        map.put("status", status);
 
         Date now = new Date();
         map.put("date", now);
@@ -106,6 +106,20 @@ public class ChatDaoImpl implements ChatDao {
         Map<String, Object> countParams = new HashMap<>();
         countParams.put("chatId", chatId);
 
+        try {
+            return namedParameterJdbcTemplate.queryForList(sql, countParams, String.class);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<String> getMessagebyUserId(Integer userId) {
+        String sql = "SELECT content FROM message WHERE chat_id IN (SELECT chat_id FROM chat WHERE user_id = :userId AND status = :status)";
+
+        Map<String, Object> countParams = new HashMap<>();
+        countParams.put("userId", userId);
+        countParams.put("status", "completed");
         try {
             return namedParameterJdbcTemplate.queryForList(sql, countParams, String.class);
         } catch (EmptyResultDataAccessException e) {

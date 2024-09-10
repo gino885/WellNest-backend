@@ -89,6 +89,34 @@ public class OpenAiWebClient {
 
     }
 
+    public Mono<String> getResponse( String prompt, Integer maxTokens, Double temperature, Double topP) {
+        JSONObject params = new JSONObject();
+
+        params.put("model", "gpt-4-0125-preview");
+        params.put("max_tokens", maxTokens);
+        params.put("stream", true);
+        params.put("temperature", temperature);
+        params.put("top_p", topP);
+        params.put("user", null);
+        JSONObject message = new JSONObject();
+        message.put("role", "user");
+        message.put("content", prompt);
+        params.put("messages", Collections.singleton(message));
+
+        return webClient.post()
+                .uri(ApiConstant.CHAT_API)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + System.getenv("OPENAI_API"))
+                .bodyValue(params.toString())
+                .retrieve()
+                .bodyToMono(String.class)
+                .onErrorResume(WebClientResponseException.class, ex -> {
+                    HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+                    String res = ex.getResponseBodyAsString();
+                    log.error("OpenAI API error: {} {}", status, res);
+                    return Mono.error(new RuntimeException(res));
+                });
+    }
+
     /**
      * 内容检查
      * 频繁输入违规的内容，会导致账号被封禁
