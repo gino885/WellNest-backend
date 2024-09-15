@@ -95,7 +95,7 @@ public class ComicController {
             responseMap.put("comic", imageUrls);
             responseMap.put("audio", audioList);
             String directoryPath = "src/voice";
-            String bgmPath = directoryPath + "/cozy_bgm.mp3";
+            String bgmPath = "https://wellnestbucket.s3.ap-southeast-2.amazonaws.com/cozy_bgm.mp3";
             responseMap.put("bgm", bgmPath);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);

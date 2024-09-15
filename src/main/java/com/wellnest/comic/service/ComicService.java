@@ -1,7 +1,5 @@
 package com.wellnest.comic.service;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,12 +12,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.converter.json.GsonBuilderUtils;
 import org.springframework.stereotype.Component;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.core.sync.RequestBody;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +38,15 @@ public class ComicService {
     private static final Logger logger = LoggerFactory.getLogger(ComicService.class);
     private static final String API_URL = "https://api.replicate.com/v1/predictions";
     private static final String API_TOKEN = System.getenv("REPLICATE_API_TOKEN");
+
+    private S3Client s3Client;
+    private String bucketName = "wellnestbucket";
+
+    public ComicService() {
+        this.s3Client = S3Client.builder()
+                .region(Region.AP_SOUTHEAST_2)
+                .build();
+    }
 
     public List<String> generateComic(String description) throws JsonProcessingException, IOException {
         String version = "39c85f153f00e4e9328cb3035b94559a8ec66170eb4c0618c07b16528bf20ac2";
@@ -69,7 +83,7 @@ public class ComicService {
         String jsonPayload = objectMapper.writeValueAsString(input);
         logger.info("JSON Payload: {}", jsonPayload);
 
-        RequestBody body = RequestBody.create(jsonPayload, MediaType.get("application/json; charset=utf-8"));
+        okhttp3.RequestBody body = okhttp3.RequestBody.create(jsonPayload, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
                 .url(API_URL)
                 .post(body)
@@ -174,22 +188,26 @@ public class ComicService {
     }
 
     private String saveImageToFile(BufferedImage image, int index) throws IOException {
-        String directoryPath = "src/picture";
-        File directory = new File(directoryPath);
-
-        if (!directory.exists() && !directory.mkdirs()) {
-            System.err.println("Failed to create directory: " + directoryPath);
-            throw new IOException("Failed to create directory: " + directoryPath);
+        LocalDate currentDate = LocalDate.now();
+        String dateString = currentDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+        if (!ImageIO.write(image, "webp", os)) {
+            throw new IOException("Failed to convert image to bytes");
         }
+        byte[] imageBytes = os.toByteArray();
+        String objectKey = "comic_images/"+ dateString +"/comic_" + index + ".webp";
 
-        String filePath = directoryPath + "/comic_" + index + ".webp";
-        File outputfile = new File(filePath);
+         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(objectKey)
+                .contentType("image/webp")
+                .build();
 
-        if (!ImageIO.write(image, "webp", outputfile)) {
-            throw new IOException("Failed to save image as webp: " + filePath);
-        }
-        System.out.println("filePath" + filePath);
-        return outputfile.getAbsolutePath();
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageBytes));
+
+        String s3Url = "https://" + bucketName + ".s3.amazonaws.com/" + objectKey;
+
+        return s3Url;
     }
 
 }
