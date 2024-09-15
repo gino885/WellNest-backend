@@ -11,6 +11,9 @@ import okhttp3.*;
 import org.hibernate.annotations.CurrentTimestamp;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,6 +34,16 @@ public class ChatTTSService {
     private static final String API_URL = "https://api.replicate.com/v1/predictions";
     private static final String API_TOKEN = System.getenv("REPLICATE_API_TOKEN");
     private static final OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
+
+    private S3Client s3Client;
+    private String bucketName = "wellnestbucket";
+
+    public ChatTTSService() {
+        this.s3Client = S3Client.builder()
+                .region(Region.AP_SOUTHEAST_2)
+                .build();
+    }
+
 
     public String generateSpeech(String text, Integer voice) throws IOException {
         String version = "fdb4f547d19c9591d7e0223c88b14886c110129c0e206ddbb97fe7a344162868";
@@ -70,16 +83,13 @@ public class ChatTTSService {
         }
     }
 
-    public String saveAudio(String text, String fileName) throws IOException, InterruptedException {
+    public String saveAudio(String text, String fileName, String date) throws IOException, InterruptedException {
         log.info("Starting audio save for text: {}", text);
         String predictionId = "";
-        Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd");
 
-        String formattedDate = dateFormat.format(date);
-        if (fileName.startsWith("src/voice/" + formattedDate+ "/n")){
+        if (fileName.startsWith("voice/" + date+ "/n")){
             predictionId = generateSpeech(text, 1259);
-        } else if (fileName.startsWith("src/voice/" + formattedDate+ "/d")){
+        } else if (fileName.startsWith("voice/" + date + "/d")){
             predictionId = generateSpeech(text, 4099);
         }
         ObjectMapper objectMapper = new ObjectMapper();
@@ -118,11 +128,10 @@ public class ChatTTSService {
 
     public List<String> processNarrationAndDialogue(String apiOutput) {
         Date date = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd");
-
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String formattedDate = dateFormat.format(date);
 
-        String directoryPath = "src/voice/" + formattedDate;
+        String directoryPath = "voice/" + formattedDate;
         Pattern pattern = Pattern.compile("\\[(Narration|Dialogue)_(\\d+)\\](.*)");
         List<String> audioFilePaths = new ArrayList<>();
         HashMap<Integer, Integer> sceneCounter = new HashMap<>();
@@ -148,7 +157,7 @@ public class ChatTTSService {
 
                 try {
                     System.out.println("fileName" + filename);
-                    audioFilePaths.add(saveAudio(content, filename));
+                    audioFilePaths.add(saveAudio(content, filename, formattedDate));
                 } catch (IOException | InterruptedException e) {
                     log.error("Failed to generate narration for segment {}", filename, e);
                 }
@@ -160,25 +169,27 @@ public class ChatTTSService {
     private String downloadAudio(String audioUrl, String fileName) throws IOException {
         Request request = new Request.Builder().url(audioUrl).build();
 
-        File outputFile = new File(fileName);
-
-        File parentDir = outputFile.getParentFile();
-        if (!parentDir.exists()) {
-            if (!parentDir.mkdirs()) {
-                throw new IOException("Failed to create directory: " + parentDir.getAbsolutePath());
-            }
-        }
         log.info("Starting download from URL: {}", audioUrl);
         try (Response response = okHttpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) {
                 throw new IOException("Failed to download audio with code: " + response.code());
             }
-            try (FileOutputStream fos = new FileOutputStream(outputFile)) {
-                byte[] audioBytes = response.body().bytes();
-                fos.write(audioBytes);
-                log.info("Successfully wrote {} bytes to file: {}", audioBytes.length, outputFile.getAbsolutePath());
-            }
-            return outputFile.getAbsolutePath();
+
+            byte[] audioBytes = response.body().bytes();
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fileName)
+                    .contentType("audio/mpeg")
+                    .build();
+            s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromBytes(audioBytes));
+
+            String s3Url = "https://" + bucketName + ".s3.amazonaws.com/" + fileName;
+
+            log.info("Successfully uploaded to S3: {}", s3Url);
+
+            return s3Url;
         }
     }
+
 }
