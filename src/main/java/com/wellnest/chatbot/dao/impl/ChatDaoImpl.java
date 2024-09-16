@@ -1,5 +1,6 @@
 package com.wellnest.chatbot.dao.impl;
 
+import com.alibaba.fastjson.support.hsf.HSFJSONUtils;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.dto.ChatCreateRequest;
 import com.wellnest.chatbot.dto.MessageRequeat;
@@ -68,7 +69,7 @@ public class ChatDaoImpl implements ChatDao {
 
         Map<String, Object> countParams = new HashMap<>();
         countParams.put("userId", userId);
-        countParams.put("status", "created");
+        countParams.put("status", "generated");
 
         int createdCount = namedParameterJdbcTemplate.queryForObject(countSql, countParams, Integer.class);
 
@@ -76,7 +77,7 @@ public class ChatDaoImpl implements ChatDao {
             throw new IllegalStateException("More than one chat with status 'created' exists for the user with ID: " + userId);
         }
 
-        String sql = "SELECT chat_id FROM chat WHERE user_id = :userId AND status = :status";
+        String sql = "SELECT chat_id FROM chat WHERE user_id = :userId AND status != :status";
 
         try {
             return namedParameterJdbcTemplate.queryForObject(sql, countParams, Integer.class);
@@ -92,13 +93,26 @@ public class ChatDaoImpl implements ChatDao {
         Map<String, Object> map = new HashMap<>();
         map.put("chatId", getChatId(Integer.parseInt(userId)));
         map.put("status", status);
-
+        System.out.println("status" + status);
         Date now = new Date();
         map.put("date", now);
 
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
     }
 
+    @Override
+    public String getStatusById(Integer userId) {
+        String sql = "SELECT status FROM chat WHERE chat_id = :chatId";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("chatId", getChatId(userId));
+
+        try {
+            return namedParameterJdbcTemplate.queryForObject(sql, params, String.class);
+        } catch (EmptyResultDataAccessException e) {
+            return "No existing messages";
+        }
+    }
     @Override
     public List<String> getMessagebyId(Integer chatId) {
         String sql = "SELECT content FROM message WHERE chat_id = :chatId";

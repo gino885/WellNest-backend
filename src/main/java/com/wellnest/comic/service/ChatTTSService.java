@@ -2,13 +2,17 @@ package com.wellnest.comic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wellnest.chatbot.dao.ChatDao;
+import com.wellnest.comic.dao.ComicRepo;
 import com.wellnest.comic.model.AudioFile;
+import com.wellnest.comic.model.Comic;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jdk.swing.interop.SwingInterOpUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.hibernate.annotations.CurrentTimestamp;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.regions.Region;
@@ -35,6 +39,10 @@ public class ChatTTSService {
     private static final String API_TOKEN = System.getenv("REPLICATE_API_TOKEN");
     private static final OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
 
+    @Autowired
+    private ChatDao chatDao;
+    @Autowired
+    private ComicRepo comicRepo;
     private S3Client s3Client;
     private String bucketName = "wellnestbucket";
 
@@ -51,8 +59,9 @@ public class ChatTTSService {
         Map<String, Object> input = new HashMap<>();
         input.put("text", text);
         input.put("voice", voice);
-        input.put("temperature", 0.3);
+        input.put("temperature", 0.2);
         input.put("top_k", 20);
+        input.put("skip_refine", 0);
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("version", version);
         requestBody.put("input", input);
@@ -83,13 +92,13 @@ public class ChatTTSService {
         }
     }
 
-    public String saveAudio(String text, String fileName, String date) throws IOException, InterruptedException {
+    public String saveAudio(String text, String fileName, String date, int chatId) throws IOException, InterruptedException {
         log.info("Starting audio save for text: {}", text);
         String predictionId = "";
 
-        if (fileName.startsWith("voice/" + date+ "/n")){
-            predictionId = generateSpeech(text, 1259);
-        } else if (fileName.startsWith("voice/" + date + "/d")){
+        if (fileName.startsWith("voice/" + date + "/" + chatId + "/n")){
+            predictionId = generateSpeech(text, 2222);
+        } else if (fileName.startsWith("voice/" + date + "/" + chatId + "/d")){
             predictionId = generateSpeech(text, 4099);
         }
         ObjectMapper objectMapper = new ObjectMapper();
@@ -126,12 +135,14 @@ public class ChatTTSService {
         return savedFilePath;
     }
 
-    public List<String> processNarrationAndDialogue(String apiOutput) {
+    public List<String> processNarrationAndDialogue(String apiOutput, String userId) {
+
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String formattedDate = dateFormat.format(date);
+        int chatId = chatDao.getChatId(Integer.parseInt(userId));
 
-        String directoryPath = "voice/" + formattedDate;
+        String directoryPath = "voice/" + formattedDate +"/"+ chatId;
         Pattern pattern = Pattern.compile("\\[(Narration|Dialogue)_(\\d+)\\](.*)");
         List<String> audioFilePaths = new ArrayList<>();
         HashMap<Integer, Integer> sceneCounter = new HashMap<>();
@@ -156,8 +167,16 @@ public class ChatTTSService {
                 }
 
                 try {
-                    System.out.println("fileName" + filename);
-                    audioFilePaths.add(saveAudio(content, filename, formattedDate));
+                    Comic comic = new Comic();
+                    comic.setUserId(Integer.parseInt(userId));
+                    comic.setChatId(chatId);
+                    comic.setType("voice");
+                    comic.setDate(date);
+                    String url = saveAudio(content, filename, formattedDate, chatId);
+                    comic.setUrl(url);
+                    comic.setPage(sceneNumber);
+                    comicRepo.save(comic);
+                    audioFilePaths.add(url);
                 } catch (IOException | InterruptedException e) {
                     log.error("Failed to generate narration for segment {}", filename, e);
                 }
