@@ -35,7 +35,7 @@ public class OpenAiHttp {
             "5. Each scene's narration starts with [Narration_X] (X is the scene number, which should be consecutive).\n" +
             "6. Narrations and dialogues can be interspersed within the same scene.\n" +
             "7. Each narration must be 100 characters or less.\n" +
-            "9. Describe the scene, atmosphere, and non-dialogue elements in the narration.\n" +
+            "9. For [NC] scenes, focus on atmosphere, setting, and background sounds, even if no characters are present. Each description must generate a corresponding narration regardless of the presence of characters.\n" +
             "10. Not every narration must be followed by dialogue, include dialogues only when necessary for storytelling.\n" +
             "11. Maintain consistency in timeline and storytelling.\n" +
             "12. Separate each line of narration or dialogue with \\n.\n" +
@@ -44,23 +44,25 @@ public class OpenAiHttp {
             "15. Use first-person perspective for dialogues, but ONLY include the direct speech. All descriptive elements should be in the narration, not the dialogue.\n" +
             "16. Dialogues only contain what the character actually says out loud or thinks directly.\n" +
             "17. Ensure that the scene numbers are consecutive and that dialogue numbers match the most recent narration number.\n" +
-            "19. Ensure all dialogues are between 20 and 50 characters, which should generate an audio length of at least 2 seconds when processed.\n" +
+            "18. you can naturally revise some of the dialogues or real scenario in the context: {context} to align with the story" +
+            "19. Ensure all dialogues are between 10 and 50 characters, which should generate an audio length of at least 2 seconds when processed.\n" +
             "20. Be creative and align with the story's tone.\n" +
+            "22. Each description should have one narration, the dialogue depends on the context and if the description don't need dialogue, it should only have one narration" +
             "\n" +
             "Input descriptions: {}\n" +
             "\n" +
             "Output format:\n" +
             "[Narration_X] [Second-person narration with [uv_break] and [laugh]]\\n\n" +
-            "[Dialogue_X] [First-person character dialogue between 20 and 50 characters to generate at least 2 seconds of audio, but only where necessary for the scene]\\n\n" +
+            "[Dialogue_X] [First-person character dialogue between 10 and 50 characters to generate at least 2 seconds of audio, but only where necessary for the scene]\\n\n" +
             "[Narration_X] [Continued second-person narration, including any descriptive elements about the dialogue]\\n\n" +
             "...\n" +
             "\n" +
             "Example output:\n" +
-            "[Narration_1] 你走进拥挤的教室[uv_break]，感受到紧张的气氛扑面而来。你看到教授正在苦苦思索着什么。\n " +
-            "[Dialogue_1] 呼——今天真是太难了，每个细节都不顺！[uv_break]\n" +
+            "[Narration_1] 你走进拥挤的教室[uv_break]，感受到紧张的气氛扑面而来。你看到教授正在苦苦想着什么。\n " +
+            "[Dialogue_1] 呼——今天真是太难了[uv_break]，每个细节都不顺!\n" +
             "[Narration_1] 教授自言自语道，脸上写满了担忧。你注意到教授的鞋带松了，心里暗自担心他可能会绊倒。\n" +
             "[Narration_2] 突然，教授站起来准备开始讲课[uv_break]，你屏住呼吸，期待着接下来会发生什么。\n" +
-            "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了！[uv_break]\n" +
+            "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了!\n" +
             "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了[laugh]，你忍不住笑出声来，同时又为他感到担心。\n";
 
     private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be no more than 10 characters long and in Traditional Chinese. The descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
@@ -75,7 +77,7 @@ public class OpenAiHttp {
             "\n" +
             "Please ensure that each caption is creative and accurately reflects the corresponding description.\n";
 
-    public String getChatCompletion(String userMessage, String type) throws Exception {
+    public String getChatCompletion(String userMessage,String originalMessage ,String type) throws Exception {
         String urlString = "https://api.openai.com/v1/chat/completions";
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -91,7 +93,7 @@ public class OpenAiHttp {
                 prompt = description_prompt.replace("{}", userMessage);
                 break;
             case "narration":
-                prompt = narration_prompt.replace("{}", userMessage);
+                prompt = narration_prompt.replace("{}", userMessage).replace("{context}", originalMessage);
                 break;
             case "caption":
                 prompt = caption_prompt.replace("{}", userMessage);

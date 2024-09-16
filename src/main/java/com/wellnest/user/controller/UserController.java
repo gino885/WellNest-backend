@@ -69,7 +69,9 @@ public class UserController {
     public String generateToken(String userId) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
-        long expMillis = nowMillis + 3600000;
+        long oneWeekInMillis = 7L * 24 * 60 * 60 * 1000;
+
+        long expMillis = nowMillis + oneWeekInMillis;
         Date exp = new Date(expMillis);
 
         return Jwts.builder()

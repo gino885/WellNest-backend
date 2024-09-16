@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.util.api.OpenAiHttp;
 import com.wellnest.chatbot.util.api.OpenAiWebClient;
+import com.wellnest.comic.model.Comic;
 import com.wellnest.comic.model.ComicRequest;
 import com.wellnest.comic.service.ChatTTSService;
+import com.wellnest.comic.service.CollectionService;
 import com.wellnest.comic.service.ComicService;
 import com.wellnest.comic.service.ImageService;
 import io.jsonwebtoken.Jwts;
@@ -50,6 +52,9 @@ public class ComicController {
     @Autowired
     private ChatDao chatDao;
 
+    @Autowired
+    private CollectionService collectionService;
+
     String secretKey = System.getenv("JWT_SECRET_KEY");
     private Key key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
     private static final Logger logger = LoggerFactory.getLogger(ComicController.class);
@@ -64,16 +69,18 @@ public class ComicController {
             } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
             }
+            if( chatDao.getStatusById(Integer.parseInt(userId)).equals("generated")){
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This Chat has already generated comic！");
+            }
             String messages = String.join(" ", chatDao.getMessagebyUserId(Integer.parseInt(userId)));
-            chatDao.finishChat(userId, "generated");
-            String description = openAiHttp.getChatCompletion(messages, "description");
+            String description = openAiHttp.getChatCompletion(messages,null ,"description");
             System.out.println("description" + description);
 
-            String caption = openAiHttp.getChatCompletion(description, "caption");
-            String narration = openAiHttp.getChatCompletion(description, "narration");
+            String caption = openAiHttp.getChatCompletion(description, null, "caption");
+            String narration = openAiHttp.getChatCompletion(description, messages, "narration");
             System.out.println("caption" + caption);
             System.out.println("narration" + narration);
-            List<String> imageUrls = comicService.generateComic(description);
+            List<String> imageUrls = comicService.generateComic(description, userId);
             List<String> imagePaths;
             try {
                 //String withoutBrackets = caption.replace("[", "").replace("]", "");
@@ -87,7 +94,7 @@ public class ComicController {
                 throw e;
             }
 
-            List<String> audioList = chatTTSService.processNarrationAndDialogue(narration);
+            List<String> audioList = chatTTSService.processNarrationAndDialogue(narration, userId);
 
             log.info("Images and narration processing completed.");
 
@@ -99,7 +106,8 @@ public class ComicController {
             responseMap.put("bgm", bgmPath);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-
+            System.out.println("userId" + userId);
+            chatDao.finishChat(userId, "generated");
             return ResponseEntity.ok().headers(headers).body(responseMap);
 
         } catch (JsonProcessingException e) {
@@ -108,6 +116,27 @@ public class ComicController {
         } catch (IOException | InterruptedException e) {
             logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+        }
+
+    }
+
+    @GetMapping("/collection")
+    public ResponseEntity<?> getCollection(@RequestHeader("Authorization") String authToken) throws Exception{
+        try{
+            String userId;
+            if (authToken != null && authToken.startsWith("Bearer ")) {
+                String token = authToken.substring(7);
+                userId = getUserIdFromToken(token);
+            } else {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
+            }
+            String result = collectionService.getCollection(Integer.parseInt(userId));
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            return ResponseEntity.ok().headers(headers).body(result);
+        } catch (Exception e){
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( e.getMessage());
         }
 
     }

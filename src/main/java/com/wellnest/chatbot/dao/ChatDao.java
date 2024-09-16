@@ -16,6 +16,8 @@ public interface ChatDao {
 
     void finishChat(String userId, String status);
 
+    String getStatusById(Integer userId);
+
     List<String> getMessagebyId(Integer chatId);
 
     List<String> getMessagebyUserId(Integer userId);
