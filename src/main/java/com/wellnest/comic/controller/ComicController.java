@@ -3,13 +3,9 @@ package com.wellnest.comic.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.util.api.OpenAiHttp;
-import com.wellnest.chatbot.util.api.OpenAiWebClient;
-import com.wellnest.comic.model.Comic;
-import com.wellnest.comic.model.ComicRequest;
 import com.wellnest.comic.service.ChatTTSService;
 import com.wellnest.comic.service.CollectionService;
 import com.wellnest.comic.service.ComicService;
-import com.wellnest.comic.service.ImageService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
@@ -22,17 +18,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.Key;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/comic")
@@ -42,8 +34,6 @@ public class ComicController {
 
     @Autowired
     private ComicService comicService;
-    @Autowired
-    private ImageService imageService;
     @Autowired
     private ChatTTSService chatTTSService;
     @Autowired

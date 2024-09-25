@@ -23,12 +23,11 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -166,7 +165,7 @@ public class ComicService {
                             comic.setChatId(chatId);
                             comic.setDate(date);
                             comic.setType("comic");
-                            String url = saveImageFromUrl(outputUrls.get(i), index++, chatId);
+                            String url = saveImageToFile(outputUrls.get(i), index++, chatId);
                             comic.setUrl(url);
                             comic.setPage(i);
                             savedFilePaths.add(url);
@@ -180,7 +179,7 @@ public class ComicService {
                         comic.setChatId(chatId);
                         comic.setDate(date);
                         comic.setType("comic");
-                        String url = saveImageFromUrl(outputUrls.get(i), index++, chatId);
+                        String url = saveImageToFile(outputUrls.get(i), index++, chatId);
                         comic.setUrl(url);
                         comic.setPage(i);
                         savedFilePaths.add(url);
@@ -202,44 +201,30 @@ public class ComicService {
         }
         return savedFilePaths;
     }
-    private String saveImageFromUrl(String imageUrl, int index, int chatId) throws IOException {
-        BufferedImage image = downloadImageFromUrl(imageUrl);
-        if (image != null) {
-            return saveImageToFile(image, index, chatId);
+
+    private String saveImageToFile(String imageUrl, int index, int chatId) throws IOException {
+        URL url = new URL(imageUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("GET");
+        String s3Url = "";
+        try (InputStream inputStream = connection.getInputStream()) {
+            LocalDate currentDate = LocalDate.now();
+            String dateString = currentDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String objectKey = "comic_images/" + dateString + "/" + chatId + "/comic_" + index + ".webp";
+
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(objectKey)
+                    .contentType("image/webp")
+                    .build();
+
+            PutObjectResponse response = s3Client.putObject(putObjectRequest,
+                    RequestBody.fromInputStream(inputStream, connection.getContentLengthLong()));
+
+            s3Url = "https://" + bucketName + ".s3.amazonaws.com/" + objectKey;
+        } catch (Exception e){
+            logger.error(e.getMessage(), e);
         }
-        return null;
-    }
-
-    private BufferedImage downloadImageFromUrl(String imageUrl) {
-        try {
-            URL url = new URL(imageUrl);
-            return ImageIO.read(url);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private String saveImageToFile(BufferedImage image, int index, int chatId) throws IOException {
-        LocalDate currentDate = LocalDate.now();
-        String dateString = currentDate.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-        if (!ImageIO.write(image, "webp", os)) {
-            throw new IOException("Failed to convert image to bytes");
-        }
-        byte[] imageBytes = os.toByteArray();
-        String objectKey = "comic_images/"+ dateString + "/" + chatId +"/comic_" + index + ".webp";
-
-         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(objectKey)
-                .contentType("image/webp")
-                .build();
-
-        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(imageBytes));
-
-        String s3Url = "https://" + bucketName + ".s3.amazonaws.com/" + objectKey;
-
         return s3Url;
     }
 
