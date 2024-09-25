@@ -73,6 +73,8 @@ public class ComicController {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This Chat has already generated comic！");
             }
             String messages = String.join(" ", chatDao.getMessagebyUserId(Integer.parseInt(userId)));
+            Integer chatId = chatDao.getChatId(Integer.parseInt(userId));
+            chatDao.finishChat(userId, "generated");
             String description = openAiHttp.getChatCompletion(messages,null ,"description");
             System.out.println("description" + description);
 
@@ -80,7 +82,7 @@ public class ComicController {
             String narration = openAiHttp.getChatCompletion(description, messages, "narration");
             System.out.println("caption" + caption);
             System.out.println("narration" + narration);
-            List<String> imageUrls = comicService.generateComic(description, userId);
+            List<String> imageUrls = comicService.generateComic(description,chatId, userId);
             List<String> imagePaths;
             try {
                 //String withoutBrackets = caption.replace("[", "").replace("]", "");
@@ -94,7 +96,7 @@ public class ComicController {
                 throw e;
             }
 
-            List<String> audioList = chatTTSService.processNarrationAndDialogue(narration, userId);
+            List<String> audioList = chatTTSService.processNarrationAndDialogue(narration, chatId, userId);
 
             log.info("Images and narration processing completed.");
 
@@ -106,8 +108,6 @@ public class ComicController {
             responseMap.put("bgm", bgmPath);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            System.out.println("userId" + userId);
-            chatDao.finishChat(userId, "generated");
             return ResponseEntity.ok().headers(headers).body(responseMap);
 
         } catch (JsonProcessingException e) {

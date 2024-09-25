@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wellnest.chatbot.dao.ChatDao;
+import com.wellnest.chatbot.service.ScaleService;
 import com.wellnest.comic.dao.ComicRepo;
 import com.wellnest.comic.model.Comic;
 import com.wellnest.comic.model.ComicJSON;
@@ -59,7 +60,7 @@ public class ComicService {
                 .build();
     }
 
-    public List<String> generateComic(String description, String userId) throws JsonProcessingException, IOException {
+    public List<String> generateComic(String description, Integer chatId, String userId) throws JsonProcessingException, IOException {
         String version = "39c85f153f00e4e9328cb3035b94559a8ec66170eb4c0618c07b16528bf20ac2";
         int numLines = description.split("\n").length;
         System.out.println(description.split("\n"));
@@ -115,7 +116,7 @@ public class ComicService {
             }
         }
 
-        return pollPredictionStatus(predictionId, userId);
+        return pollPredictionStatus(predictionId, chatId, String userId);
     }
 
     private String parsePredictionId(String responseBody) {
@@ -128,7 +129,7 @@ public class ComicService {
         }
     }
 
-    public List<String> pollPredictionStatus(String predictionId, String userId) throws IOException {
+    public List<String> pollPredictionStatus(String predictionId, Integer chatId, String userId) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> outputUrls = new ArrayList<>();
         List<String> savedFilePaths = new ArrayList<>();
@@ -161,7 +162,6 @@ public class ComicService {
                     for (int i : customOrder) {
                         if (i < outputUrls.size()) {
                             Comic comic = new Comic();
-                            Integer chatId = chatDao.getChatId(Integer.parseInt(userId));
                             comic.setUserId(Integer.parseInt(userId));
                             comic.setChatId(chatId);
                             comic.setDate(date);
@@ -176,7 +176,6 @@ public class ComicService {
 
                     for (int i = customOrder.size(); i < outputUrls.size(); i++) {
                         Comic comic = new Comic();
-                        Integer chatId = chatDao.getChatId(Integer.parseInt(userId));
                         comic.setUserId(Integer.parseInt(userId));
                         comic.setChatId(chatId);
                         comic.setDate(date);

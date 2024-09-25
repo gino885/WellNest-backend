@@ -135,12 +135,11 @@ public class ChatTTSService {
         return savedFilePath;
     }
 
-    public List<String> processNarrationAndDialogue(String apiOutput, String userId) {
+    public List<String> processNarrationAndDialogue(String apiOutput, Integer chatId, String userId) {
 
         Date date = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         String formattedDate = dateFormat.format(date);
-        int chatId = chatDao.getChatId(Integer.parseInt(userId));
 
         String directoryPath = "voice/" + formattedDate +"/"+ chatId;
         Pattern pattern = Pattern.compile("\\[(Narration|Dialogue)_(\\d+)\\](.*)");
