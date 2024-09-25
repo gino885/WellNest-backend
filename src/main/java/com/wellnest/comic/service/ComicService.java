@@ -116,7 +116,7 @@ public class ComicService {
             }
         }
 
-        return pollPredictionStatus(predictionId, chatId, String userId);
+        return pollPredictionStatus(predictionId, chatId, userId);
     }
 
     private String parsePredictionId(String responseBody) {
