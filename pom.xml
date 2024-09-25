@@ -232,11 +232,6 @@
 			<version>0.4.20</version>
 		</dependency>
 		<dependency>
-			<groupId>org.sejda.imageio</groupId>
-			<artifactId>webp-imageio</artifactId>
-			<version>0.1.6</version>
-		</dependency>
-		<dependency>
 			<groupId>black.ninia</groupId>
 			<artifactId>jep</artifactId>
 			<version>4.2.0</version>
