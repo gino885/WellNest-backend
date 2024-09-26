@@ -18,23 +18,23 @@ public class OpenAiHttp {
     private String description_prompt = "根據以下中文文本生成一個英文的第二人稱故事情節。Format: 1. Scene description with specific actions " +
             "2. [NC] Scene with no characters, just environmental details 3. Actions of the characters or important events in the story，" +
             "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並且結局要正向。 {} Example Format: " +
-            "Discussing project challenges with two students, offering guidance\n[NC] An empty classroom, a computer screen flickers\n" +
-            "Spotting an error in the code on the screen, eyes narrowing\n[NC] A whiteboard filled with diagrams\n" +
-            "Receiving a student's plea for help, suggesting a different approach on the whiteboard\n" +
-            "Sharing an unexpected insight during a lab session, excitement building among students\n" +
+            "Discussing project challenges with two students, offering guidance, night\n[NC] An empty classroom, a computer screen flickers, night\n" +
+            "Spotting an error in the code on the screen, eyes narrowing, night\n[NC] A whiteboard filled with diagrams, late night\n" +
+            "Receiving a student's plea for help, suggesting a different approach on the whiteboard, late night\n" +
+            "Sharing an unexpected insight during a lab session, excitement building among students, morning\n" +
             "[NC] The competition venue for an app software contest, crowded with people, bright lights, anticipation building\n" +
-            "Delivering a compelling demonstration of the mental health app on the screen, the audience captivated\n" +
-            "[NC] Judges announce the app as the winner, applause fills the room\n" +
-            "The professor smiles, pride shining in his eyes as his students celebrate 請按照這個格式生成故事情節，並確保小於10句。";
+            "Delivering a compelling demonstration of the mental health app on the screen, the audience captivated, morning\n" +
+            "[NC] Judges announce the app as the winner, applause fills the room, night\n" +
+            "The professor smiles, pride shining in his eyes as his students celebrate, night 請按照這個格式生成故事情節，並確保小於10個情節。";
     private String narration_prompt = "Generate a creative and storytelling narration based on the following single-line input of descriptions. Follow these guidelines:\n" +
             "\n" +
-            "1. Use Simplified Chinese characters, but with a more colloquial Taiwanese tone and expressions, avoiding overly formal or literary language.\n" +
+            "1. Use Simplified Chinese characters, but with a more colloquial Taiwanese tone and expressions, avoiding overly formal or literary language and ignore time like night or afternoon\n" +
             "2. Each description is separated by \\n in the input.\n" +
             "3. Use [uv_break] for pauses or transitions and [laugh] for laughter where appropriate.\n" +
             "4. Generate character dialogues where appropriate, using [Dialogue_X] tags (X should match the number of the most recent [Narration_X] tag).\n" +
             "5. Each scene's narration starts with [Narration_X] (X is the scene number, which should be consecutive and and match the number of descriptions, up to 10 scenes.).\n" +
             "6. Narrations and dialogues can be interspersed within the same scene.\n" +
-            "7. Each narration must be 150 characters or less.\n" +
+            "7. Each narration must be 100 characters or less.\n" +
             "9. For [NC] scenes, focus on atmosphere, setting, and background sounds, even if no characters are present. Each description must generate a corresponding narration regardless of the presence of characters.\n" +
             "10. Not every narration must be followed by dialogue, include dialogues only when necessary for storytelling.\n" +
             "11. Maintain consistency in timeline and storytelling.\n" +
