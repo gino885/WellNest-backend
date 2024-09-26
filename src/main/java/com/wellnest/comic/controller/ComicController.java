@@ -3,6 +3,7 @@ package com.wellnest.comic.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.util.api.OpenAiHttp;
+import com.wellnest.comic.model.Dialogue;
 import com.wellnest.comic.service.ChatTTSService;
 import com.wellnest.comic.service.CollectionService;
 import com.wellnest.comic.service.ComicService;
@@ -21,10 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Key;
-import java.util.Base64;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/comic")
@@ -66,12 +64,24 @@ public class ComicController {
             Integer chatId = chatDao.getChatId(Integer.parseInt(userId));
             chatDao.finishChat(userId, "generated");
             String description = openAiHttp.getChatCompletion(messages,null ,"description");
-            System.out.println("description" + description);
+            System.out.println("description: " + description);
 
             String caption = openAiHttp.getChatCompletion(description, null, "caption");
             String narration = openAiHttp.getChatCompletion(description, messages, "narration");
             System.out.println("caption" + caption);
-            System.out.println("narration" + narration);
+            System.out.println("narration: " + narration);
+            String[] narration_sep = narration.split("\n");
+            List<Dialogue> dialogues = new ArrayList<>();
+            for (String narative : narration_sep){
+                if(narative.startsWith("[Dialogue")){
+                    Character sceneNum = narative.charAt(narative.indexOf("_")+1);
+                    String content = narative.substring(narative.indexOf("]") + 2)
+                            .replace("[uv_break]", "")
+                            .replace("[laugh]", "");
+                    Dialogue dialogue = new Dialogue(sceneNum, content);
+                    dialogues.add(dialogue);
+                }
+            }
             List<String> imageUrls = comicService.generateComic(description,chatId, userId);
             List<String> imagePaths;
             try {
@@ -93,6 +103,7 @@ public class ComicController {
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("comic", imageUrls);
             responseMap.put("audio", audioList);
+            responseMap.put("dialogues", dialogues);
             String directoryPath = "src/voice";
             String bgmPath = "https://wellnestbucket.s3.ap-southeast-2.amazonaws.com/cozy_bgm.mp3";
             responseMap.put("bgm", bgmPath);
