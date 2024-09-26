@@ -70,7 +70,7 @@ public class ComicService {
                 .comicDescription(description)
                 .characterDescription("a man, wearing black suit")
                 .sdModel("Unstable")
-                .numSteps(30)
+                .numSteps(25)
                 .styleName("Disney Charactor")
                 .comicStyle("Classic Comic Style")
                 .imageWidth(512)
