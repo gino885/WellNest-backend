@@ -140,5 +140,15 @@ public class ChatDaoImpl implements ChatDao {
             return null;
         }
     }
+    @Override
+    public void saveTitle(Integer chatId, String title) {
+        String sql = "UPDATE chat SET title = :title WHERE chat_id = :chatId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("chatId", chatId);
+        map.put("title", title);
+
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
+    }
 
 }

@@ -23,6 +23,8 @@ import java.sql.SQLOutput;
 import java.util.Base64;
 import java.util.stream.Collectors;
 
+import static java.lang.Thread.sleep;
+
 /**
  * @author niuxiangqian
  * @version 1.0
@@ -110,6 +112,7 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
             String content = openAiResponse.getChoices().get(0).getDelta().getContent();
             if( !data.contains("#")  && content != null){
                audioSentnece.append(content);
+
             }
 
             sentence.append(content);

@@ -3,6 +3,7 @@ package com.wellnest.comic.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.util.api.OpenAiHttp;
+import com.wellnest.comic.model.ChatData;
 import com.wellnest.comic.model.Dialogue;
 import com.wellnest.comic.service.ChatTTSService;
 import com.wellnest.comic.service.CollectionService;
@@ -68,6 +69,9 @@ public class ComicController {
 
             String caption = openAiHttp.getChatCompletion(description, null, "caption");
             String narration = openAiHttp.getChatCompletion(description, messages, "narration");
+            String title = collectionService.getTitle(description, messages, chatId);
+
+            String[] captions = caption.split(",");
             System.out.println("caption" + caption);
             System.out.println("narration: " + narration);
             String[] narration_sep = narration.split("\n");
@@ -83,28 +87,19 @@ public class ComicController {
                 }
             }
             List<String> imageUrls = comicService.generateComic(description,chatId, userId);
-            List<String> imagePaths;
-            try {
-                //String withoutBrackets = caption.replace("[", "").replace("]", "");
-
-               // String[] array = withoutBrackets.split(",\\s*");
-
-
-                log.info("Images merged successfully.");
-            } catch (Exception e) {
-                log.error("Error during image merging: {}", e.getMessage());
-                throw e;
-            }
 
             List<String> audioList = chatTTSService.processNarrationAndDialogue(narration, chatId, userId);
 
             log.info("Images and narration processing completed.");
-
+            Date date = new Date();
             Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("comic", imageUrls);
             responseMap.put("audio", audioList);
             responseMap.put("dialogues", dialogues);
-            String directoryPath = "src/voice";
+            responseMap.put("captions", captions);
+            responseMap.put("title", title);
+            responseMap.put("date", date);
+
             String bgmPath = "https://wellnestbucket.s3.ap-southeast-2.amazonaws.com/cozy_bgm.mp3";
             responseMap.put("bgm", bgmPath);
             HttpHeaders headers = new HttpHeaders();
@@ -131,10 +126,10 @@ public class ComicController {
             } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
             }
-            String result = collectionService.getCollection(Integer.parseInt(userId));
+            List<ChatData> chatData = collectionService.getCollection(Integer.parseInt(userId));
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            return ResponseEntity.ok().headers(headers).body(result);
+            return ResponseEntity.ok().headers(headers).body(chatData);
         } catch (Exception e){
             logger.error(e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( e.getMessage());

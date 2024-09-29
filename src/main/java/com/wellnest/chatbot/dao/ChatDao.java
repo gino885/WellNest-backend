@@ -21,4 +21,6 @@ public interface ChatDao {
     List<String> getMessagebyId(Integer chatId);
 
     List<String> getMessagebyUserId(Integer userId);
+
+    void saveTitle(Integer chatId, String title);
 }

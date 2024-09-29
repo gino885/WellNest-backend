@@ -34,7 +34,7 @@ public class ChatController {
 
 
             chatCreateRequest.setUserId(userId);
-
+            chatCreateRequest.setStatus("created");
             chatService.createChat(chatCreateRequest);
 
             return ResponseEntity.status(HttpStatus.CREATED).build();

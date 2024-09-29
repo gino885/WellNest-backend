@@ -75,10 +75,10 @@ public class OpenAiHttp {
             "{}\n" +
             "\n" +
             "Format:\n" +
-            "\"caption\": [\"教授耐心指導學生\",\"空教室裡，電腦微光閃爍\",\"教授發現錯誤，凝神思考\",\"深夜的白板上，寫滿了靈感\",\"教授深夜提建議，點出新思路\",\"早晨，實驗室的靈感碰撞\",\"比賽場地，氣氛緊張期待\",\"精彩演示，觀眾全神貫注\",\"冠軍揭曉，全場響起掌聲\",\"教授笑了，學生們歡呼慶祝\"]\n" +
+            "\"caption\": 教授耐心指導學生\",\"空教室裡，電腦微光閃爍\",\"教授發現錯誤，凝神思考\",\"深夜的白板上，寫滿了靈感\",\"教授深夜提建議，點出新思路\",\"早晨，實驗室的靈感碰撞\",\"比賽場地，氣氛緊張期待\",\"精彩演示，觀眾全神貫注\",\"冠軍揭曉，全場響起掌聲\",\"教授笑了，學生們歡呼慶祝\n" +
             "\n" +
             "Please ensure that each caption is creative and accurately reflects the corresponding description.\n";
-
+    private String title_prompt = "Based on the following story description, please generate a compelling and concise title that captures the essence and positive ending of the story，請使用繁體中文並在 3 到 8 個字之間: {}";
     public String getChatCompletion(String userMessage,String originalMessage ,String type) throws Exception {
         String urlString = "https://api.openai.com/v1/chat/completions";
         URL url = new URL(urlString);
@@ -100,6 +100,8 @@ public class OpenAiHttp {
             case "caption":
                 prompt = caption_prompt.replace("{}", userMessage);
                 break;
+            case "title":
+                prompt = title_prompt.replace("{}", userMessage);
         }
 
         ObjectMapper objectMapper = new ObjectMapper();

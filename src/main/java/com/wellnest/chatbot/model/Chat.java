@@ -1,10 +1,13 @@
 package com.wellnest.chatbot.model;
+import com.wellnest.comic.model.Comic;
 import com.wellnest.user.model.User;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
+
 @Entity
 @Table(name = "chat")
 @Data
@@ -13,7 +16,7 @@ public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "chat_id")
-    private int chatId;
+    private Integer chatId;
 
     @Column(name = "status")
     private String status;
@@ -22,8 +25,13 @@ public class Chat {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
+    @Column(name = "title")
+    private Date title;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Comic> comics;
 }

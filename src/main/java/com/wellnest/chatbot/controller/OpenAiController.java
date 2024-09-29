@@ -40,9 +40,7 @@ public class OpenAiController {
     private final OpenAiWebClient openAiWebClient;
 
     private static final String ERROR_MSG = "使用的人太多啦！等下再用吧！";
-    /**
-     * 建议更换为自己业务的线程池
-     */
+
     private static final Executor EXECUTOR = Executors.newFixedThreadPool(10);
     private static final Random RANDOM = new Random();
     private StringBuilder textBuffer = new StringBuilder();
