@@ -63,6 +63,7 @@ public class MissionServiceImpl implements MissionService {
             List<Mission> final_missions = new ArrayList<>();
             List<Mission> missions;
             for (int difficulty = 0; difficulty < 2; difficulty++){
+                missionScores.clear();
                 if(difficulty == 0){
                     missions = missionDao.findByDifficulty(difficulty);
                 } else {

@@ -19,7 +19,7 @@ public interface CollectionDao extends CrudRepository<Chat, Long> {
             "ch.date " +
             "FROM collection c " +
             "JOIN chat ch ON c.chat_id = ch.chat_id " +
-            "WHERE ch.user_id =:userId" +
+            "WHERE ch.user_id =:userId " +
             "GROUP BY ch.chat_id", nativeQuery = true)
     List<Object[]> getUrlsGroupedByType(@Param("userId" ) Integer userId);
 }
