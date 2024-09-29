@@ -21,6 +21,7 @@ import reactor.core.publisher.FluxSink;
 
 import java.sql.SQLOutput;
 import java.util.Base64;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.lang.Thread.sleep;
@@ -90,7 +91,6 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
             emitter.complete();
         } else {
             // 檢查數據中是否包含句號或逗號
-
             if (data.contains("，") || data.contains("。") || data.contains("！") || data.contains("？")) {
                 // 轉換累積的文本為語音
 
@@ -112,9 +112,11 @@ public class OpenAISubscriber implements Subscriber<String>, Disposable {
             String content = openAiResponse.getChoices().get(0).getDelta().getContent();
             if( !data.contains("#")  && content != null){
                audioSentnece.append(content);
-
             }
-
+            if (Objects.equals(openAiResponse.getChoices().get(0).getFinishReason(), "stop")) {
+                log.info("content is empty, skipping...");
+                return;
+            }
             sentence.append(content);
             log.info(sentence.toString());
             content = content == null ? "" : content;
