@@ -35,6 +35,4 @@ public class Chat {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Comic> comics;
 }

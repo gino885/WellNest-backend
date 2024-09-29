@@ -40,7 +40,4 @@ public class Comic {
     @Column(name = "chat_id", insertable = false, updatable = false)
     private Integer chatId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_id", nullable = false)
-    private Chat chat;
 }
