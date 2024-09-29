@@ -12,4 +12,6 @@ public interface ChatService {
     Integer getChatId(Integer userId);
 
     void finishChat(ChatCreateRequest chatCreateRequest);
+
+    void storeMission(Integer chatId, String mission);
 }

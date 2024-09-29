@@ -1,5 +1,6 @@
 package com.wellnest.comic.model;
 
+import com.wellnest.chatbot.model.Chat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,6 +37,7 @@ public class Comic {
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "chat_id")
+    @Column(name = "chat_id", insertable = false, updatable = false)
     private Integer chatId;
+
 }

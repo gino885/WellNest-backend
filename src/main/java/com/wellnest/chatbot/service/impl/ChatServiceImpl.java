@@ -33,4 +33,9 @@ public class ChatServiceImpl implements ChatService {
 
         chatDao.finishChat(chatCreateRequest.getUserId(), "completed");
     }
+
+    @Override
+    public void storeMission(Integer chatId, String mission) {
+        chatDao.storeMission(chatId, mission);
+    }
 }

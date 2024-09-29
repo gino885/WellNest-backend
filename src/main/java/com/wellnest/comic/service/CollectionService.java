@@ -1,43 +1,68 @@
 package com.wellnest.comic.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wellnest.chatbot.dao.ChatDao;
+import com.wellnest.chatbot.util.api.OpenAiHttp;
+import com.wellnest.comic.dao.CollectionDao;
 import com.wellnest.comic.dao.ComicRepo;
+import com.wellnest.comic.model.ChatData;
+import com.wellnest.comic.model.Collection;
 import com.wellnest.comic.model.Comic;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Component
 public class CollectionService {
     @Autowired
+    private OpenAiHttp openAiHttp;
+    @Autowired
     private ComicRepo comicRepo;
-    public String getCollection(Integer userId) throws Exception{
-        ObjectMapper objectMapper = new ObjectMapper();
-        List<Comic> comics = comicRepo.findByUserId(userId);
-
-        Map<Integer, Map<String, List<Map<String, Object>>>> result = new HashMap<>();
-        for (Comic comic : comics) {
-            Integer chatId = comic.getChatId();
-            String type = comic.getType();
-
-            result.putIfAbsent(chatId, new HashMap<>());
-
-            result.get(chatId).putIfAbsent(type, new ArrayList<>());
-
-            Map<String, Object> comicData = new HashMap<>();
-            comicData.put("url", comic.getUrl());
-            comicData.put("page", comic.getPage());
-
-            result.get(chatId).get(type).add(comicData);
-        }
-
-        return objectMapper.writeValueAsString(result);
+    @Autowired
+    private ChatDao chatDao;
+    @Autowired
+    private CollectionDao collectionDao;
+    public String getTitle(String description, String messages, Integer chatId) throws Exception{
+        String title = openAiHttp.getChatCompletion(description, messages, "title");
+        chatDao.saveTitle(chatId, title.replaceAll("\\*", ""));
+        return title;
     }
 
+    public List<ChatData> getCollection(Integer userId) {
+        List<Object[]> results = collectionDao.getUrlsGroupedByType(userId);
+        List<ChatData> chatDataList = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String title = (String) result[0];
+            String comicUrls = (String) result[1];
+            String voiceUrls = (String) result[2];
+            Date date = (Date) result[3];
+
+            Map<String, List<String>> urlsByType = new HashMap<>();
+            urlsByType.put("comic", splitUrls(comicUrls));
+            urlsByType.put("voice", splitUrls(voiceUrls));
+
+            ChatData chatData = new ChatData(title, urlsByType, date);
+            chatDataList.add(chatData);
+        }
+
+        return chatDataList;
+    }
+
+    private List<String> splitUrls(String urls) {
+        if (urls == null || urls.isEmpty()) {
+            return new ArrayList<>();
+        }
+        String[] urlArray = urls.split(",");
+        List<String> urlList = new ArrayList<>();
+        for (String url : urlArray) {
+            urlList.add(url.trim());
+        }
+        return urlList;
+    }
 }
+
+

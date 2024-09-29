@@ -17,7 +17,7 @@ import java.net.URL;
 public class OpenAiHttp {
     private String description_prompt = "根據以下中文文本生成一個英文的第二人稱故事情節。Format: 1. Scene description with specific actions " +
             "2. [NC] Scene with no characters, just environmental details 3. Actions of the characters or important events in the story，" +
-            "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並且結局要正向。 {} Example Format: " +
+            "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並要提及用戶做的事情如何影響他的心情，事情:{mission}，並且結局要正向。 {} Example Format: " +
             "Discussing project challenges with two students, offering guidance, night\n[NC] An empty classroom, a computer screen flickers, night\n" +
             "Spotting an error in the code on the screen, eyes narrowing, night\n[NC] A whiteboard filled with diagrams, late night\n" +
             "Receiving a student's plea for help, suggesting a different approach on the whiteboard, late night\n" +
@@ -50,6 +50,7 @@ public class OpenAiHttp {
             "21. if the description don't need dialogue, the description should only have one narration\n"+
             "22. Each description should have one narration and the narration the scene number X should be exact the , the dialogue depends on the context\n" +
             "23. The number of narrations generated must match the number of descriptions, and the total number of narrations must not exceed 10.\n"+
+            "24. output format can only begin with [Narration_X] or [Dialogue_X] \\n"+
             "\n" +
             "Input descriptions: {}\n" +
             "\n" +
@@ -61,24 +62,23 @@ public class OpenAiHttp {
             "\n" +
             "Example output:\n" +
             "[Narration_1] 你走进拥挤的教室[uv_break]，感受到紧张的气氛扑面而来。你看到教授正在苦苦想着什么。\n " +
-            "[Dialogue_1] 呼——今天真是太难了[uv_break]，每个细节都不顺!\n" +
+            "[Dialogue_1] 呼——今天真是太难了，每个细节都不顺!\n" +
             "[Narration_1] 教授自言自语道，脸上写满了担忧。你注意到教授的鞋带松了，心里暗自担心他可能会绊倒。\n" +
-            "[Narration_2] 突然，教授站起来准备开始讲课[uv_break]，你屏住呼吸，期待着接下来会发生什么。\n" +
+            "[Narration_2] 突然，教授站起来准备开始讲课，你屏住呼吸，期待着接下来会发生什么。\n" +
             "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了!\n" +
             "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了[laugh]，你忍不住笑出声来，同时又为学生感到担心。\n";
 
-    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be no more than 10 characters long and in Traditional Chinese. The descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
+    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be between 4 to 10 characters long, written in Traditional Chinese, and should avoid using idiomatic four-character phrases (成語). The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
             "\n" +
-            "\"caption\": [\"caption 1\", \"caption 2\", \"caption 3\", ...]\n" +
-            "\n" +
+            "Descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
+            "caption: [caption 1, caption 2, caption 3, ...]\n" +
             "Descriptions:\n" +
             "{}\n" +
-            "\n" +
             "Format:\n" +
-            "\"caption\": [\"教授耐心指導學生\",\"空教室裡，電腦微光閃爍\",\"教授發現錯誤，凝神思考\",\"深夜的白板上，寫滿了靈感\",\"教授深夜提建議，點出新思路\",\"早晨，實驗室的靈感碰撞\",\"比賽場地，氣氛緊張期待\",\"精彩演示，觀眾全神貫注\",\"冠軍揭曉，全場響起掌聲\",\"教授笑了，學生們歡呼慶祝\"]\n" +
+            "caption: [教授在耐心指導學生,教室裡電腦螢幕微微發亮,教授發現錯誤，靜靜思考,白板上寫滿了靈感點子,深夜中，教授給了新方向,早上實驗室裡熱烈討論,比賽場地充滿緊張氛圍,精彩演示，大家屏氣凝神,得獎時全場爆出熱烈掌聲,教授微笑，學生們開心歡呼]\n" +
             "\n" +
-            "Please ensure that each caption is creative and accurately reflects the corresponding description.\n";
-
+            "Please ensure that each caption is creative, accurately reflects the corresponding description, and uses simple and conversational language.\n";
+    private String title_prompt = "Based on the following story description, please generate a compelling and concise title that captures the essence and positive ending of the story，請使用繁體中文並在 3 到 8 個字之間: {}";
     public String getChatCompletion(String userMessage,String originalMessage ,String type) throws Exception {
         String urlString = "https://api.openai.com/v1/chat/completions";
         URL url = new URL(urlString);
@@ -92,7 +92,7 @@ public class OpenAiHttp {
         String prompt = "";
         switch (type) {
             case "description":
-                prompt = description_prompt.replace("{}", userMessage);
+                prompt = description_prompt.replace("{}", userMessage).replace("{mission}", originalMessage);
                 break;
             case "narration":
                 prompt = narration_prompt.replace("{}", userMessage).replace("{context}", originalMessage);
@@ -100,6 +100,8 @@ public class OpenAiHttp {
             case "caption":
                 prompt = caption_prompt.replace("{}", userMessage);
                 break;
+            case "title":
+                prompt = title_prompt.replace("{}", userMessage);
         }
 
         ObjectMapper objectMapper = new ObjectMapper();

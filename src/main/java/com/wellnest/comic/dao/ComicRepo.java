@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface ComicRepo extends CrudRepository<Comic, Long> {
     List<Comic> findByUserId(Integer userId);
+
 }
