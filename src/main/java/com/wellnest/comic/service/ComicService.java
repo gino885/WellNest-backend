@@ -202,7 +202,7 @@ public class ComicService {
         return savedFilePaths;
     }
 
-    private String saveImageToFile(String imageUrl, int index, int chatId) throws IOException {
+    private String saveImageToFile(String imageUrl, int index, Integer chatId) throws IOException {
         URL url = new URL(imageUrl);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");

@@ -27,7 +27,7 @@ public class CollectionService {
     private CollectionDao collectionDao;
     public String getTitle(String description, String messages, Integer chatId) throws Exception{
         String title = openAiHttp.getChatCompletion(description, messages, "title");
-        chatDao.saveTitle(chatId, title);
+        chatDao.saveTitle(chatId, title.replaceAll("\\*", ""));
         return title;
     }
 

@@ -82,6 +82,21 @@ public class ChatController {
         }
     }
 
+    @PostMapping("/mission/update")
+    public ResponseEntity<?> updateMission(@RequestHeader("Authorization") String authToken,
+                                           @RequestBody String mission) {
+        if (authToken != null && authToken.startsWith("Bearer ")) {
+            String token = authToken.substring(7);
+            String userId = getUserIdFromToken(token);
+
+            chatService.storeMission(chatService.getChatId(Integer.parseInt(userId)), mission);
+
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } else {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
+        }
+    }
+
     private String getUserIdFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(key)

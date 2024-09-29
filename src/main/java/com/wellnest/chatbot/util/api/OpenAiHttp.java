@@ -17,7 +17,7 @@ import java.net.URL;
 public class OpenAiHttp {
     private String description_prompt = "根據以下中文文本生成一個英文的第二人稱故事情節。Format: 1. Scene description with specific actions " +
             "2. [NC] Scene with no characters, just environmental details 3. Actions of the characters or important events in the story，" +
-            "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並且結局要正向。 {} Example Format: " +
+            "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並要提及用戶做的事情如何影響他的心情，事情:{mission}，並且結局要正向。 {} Example Format: " +
             "Discussing project challenges with two students, offering guidance, night\n[NC] An empty classroom, a computer screen flickers, night\n" +
             "Spotting an error in the code on the screen, eyes narrowing, night\n[NC] A whiteboard filled with diagrams, late night\n" +
             "Receiving a student's plea for help, suggesting a different approach on the whiteboard, late night\n" +
@@ -50,6 +50,7 @@ public class OpenAiHttp {
             "21. if the description don't need dialogue, the description should only have one narration\n"+
             "22. Each description should have one narration and the narration the scene number X should be exact the , the dialogue depends on the context\n" +
             "23. The number of narrations generated must match the number of descriptions, and the total number of narrations must not exceed 10.\n"+
+            "24. output format can only begin with [Narration_X] or [Dialogue_X] \\n"+
             "\n" +
             "Input descriptions: {}\n" +
             "\n" +
@@ -61,13 +62,13 @@ public class OpenAiHttp {
             "\n" +
             "Example output:\n" +
             "[Narration_1] 你走进拥挤的教室[uv_break]，感受到紧张的气氛扑面而来。你看到教授正在苦苦想着什么。\n " +
-            "[Dialogue_1] 呼——今天真是太难了[uv_break]，每个细节都不顺!\n" +
+            "[Dialogue_1] 呼——今天真是太难了，每个细节都不顺!\n" +
             "[Narration_1] 教授自言自语道，脸上写满了担忧。你注意到教授的鞋带松了，心里暗自担心他可能会绊倒。\n" +
-            "[Narration_2] 突然，教授站起来准备开始讲课[uv_break]，你屏住呼吸，期待着接下来会发生什么。\n" +
+            "[Narration_2] 突然，教授站起来准备开始讲课，你屏住呼吸，期待着接下来会发生什么。\n" +
             "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了!\n" +
             "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了[laugh]，你忍不住笑出声来，同时又为学生感到担心。\n";
 
-    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be no more than 10 characters long and in Traditional Chinese. The descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
+    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be 4 to 10 characters long, written in Traditional Chinese, and should vary in character count to create diversity. The descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
             "\n" +
             "\"caption\": [\"caption 1\", \"caption 2\", \"caption 3\", ...]\n" +
             "\n" +
@@ -92,7 +93,7 @@ public class OpenAiHttp {
         String prompt = "";
         switch (type) {
             case "description":
-                prompt = description_prompt.replace("{}", userMessage);
+                prompt = description_prompt.replace("{}", userMessage).replace("{mission}", originalMessage);
                 break;
             case "narration":
                 prompt = narration_prompt.replace("{}", userMessage).replace("{context}", originalMessage);

@@ -58,13 +58,12 @@ public class ComicController {
             } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Token is missing or not valid.");
             }
-            if( chatDao.getStatusById(Integer.parseInt(userId)).equals("generated")){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This Chat has already generated comic！");
-            }
+            System.out.println(chatDao.getStatusById(Integer.parseInt(userId)));
             String messages = String.join(" ", chatDao.getMessagebyUserId(Integer.parseInt(userId)));
             Integer chatId = chatDao.getChatId(Integer.parseInt(userId));
+            String mission = chatDao.getMissionById(chatId);
             chatDao.finishChat(userId, "generated");
-            String description = openAiHttp.getChatCompletion(messages,null ,"description");
+            String description = openAiHttp.getChatCompletion(messages, mission ,"description");
             System.out.println("description: " + description);
 
             String caption = openAiHttp.getChatCompletion(description, null, "caption");

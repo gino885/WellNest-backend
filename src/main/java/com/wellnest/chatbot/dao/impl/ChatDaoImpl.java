@@ -151,4 +151,29 @@ public class ChatDaoImpl implements ChatDao {
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
     }
 
+    @Override
+    public void storeMission(Integer chatId, String mission) {
+        String sql = "UPDATE chat SET mission = :mission WHERE chat_id = :chatId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("chatId", chatId);
+        map.put("title", mission);
+
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
+    }
+
+    @Override
+    public String getMissionById(Integer chatId) {
+
+        String sql = "SELECT mission FROM chat WHERE chat_id = :chatId";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("chatId", chatId);
+
+        try {
+            return namedParameterJdbcTemplate.queryForObject(sql, params, String.class);
+        } catch (EmptyResultDataAccessException e) {
+            return "No existing messages";
+        }
+    }
 }

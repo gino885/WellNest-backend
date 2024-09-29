@@ -26,7 +26,10 @@ public class Chat {
     private Date date;
 
     @Column(name = "title")
-    private Date title;
+    private String title;
+
+    @Column(name = "mission")
+    private String mission;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

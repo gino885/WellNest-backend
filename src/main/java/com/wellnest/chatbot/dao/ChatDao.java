@@ -23,4 +23,8 @@ public interface ChatDao {
     List<String> getMessagebyUserId(Integer userId);
 
     void saveTitle(Integer chatId, String title);
+
+    void storeMission(Integer chatId, String mission);
+
+    String getMissionById(Integer chatId);
 }
