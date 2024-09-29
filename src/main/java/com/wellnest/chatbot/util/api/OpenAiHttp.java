@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.Objects;
 
 @Component
 public class OpenAiHttp {
@@ -88,14 +89,14 @@ public class OpenAiHttp {
         connection.setRequestProperty("Content-Type", "application/json");
         connection.setRequestProperty("Authorization", "Bearer " + System.getenv("OPENAI_API"));
         connection.setDoOutput(true);
-
+        String safeOriginalMessage = Objects.requireNonNullElse(originalMessage, "");
         String prompt = "";
         switch (type) {
             case "description":
-                prompt = description_prompt.replace("{}", userMessage).replace("{mission}", originalMessage);
+                prompt = description_prompt.replace("{}", userMessage).replace("{mission}", safeOriginalMessage);
                 break;
             case "narration":
-                prompt = narration_prompt.replace("{}", userMessage).replace("{context}", originalMessage);
+                prompt = narration_prompt.replace("{}", userMessage).replace("{context}", safeOriginalMessage);
                 break;
             case "caption":
                 prompt = caption_prompt.replace("{}", userMessage);
