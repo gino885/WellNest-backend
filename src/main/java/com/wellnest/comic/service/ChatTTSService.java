@@ -170,6 +170,9 @@ public class ChatTTSService {
                     comic.setUserId(Integer.parseInt(userId));
                     comic.setChatId(chatId);
                     comic.setType("voice");
+                    if (type.equals("Dialogue")){
+                        comic.setAttribute(content);
+                    }
                     comic.setDate(date);
                     String url = saveAudio(content, filename, formattedDate, chatId);
                     comic.setUrl(url);
