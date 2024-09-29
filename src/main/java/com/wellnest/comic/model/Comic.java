@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.util.Date;
 
@@ -33,6 +34,9 @@ public class Comic {
 
     @Column(name = "date")
     private Date date;
+
+    @Column(name = "attribute")
+    private String attribute;
 
     @Column(name = "user_id")
     private Integer userId;

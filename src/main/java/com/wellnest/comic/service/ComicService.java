@@ -59,7 +59,7 @@ public class ComicService {
                 .build();
     }
 
-    public List<String> generateComic(String description, Integer chatId, String userId) throws JsonProcessingException, IOException {
+    public List<String> generateComic(String description, Integer chatId, String userId, String[] captions) throws JsonProcessingException, IOException {
         String version = "39c85f153f00e4e9328cb3035b94559a8ec66170eb4c0618c07b16528bf20ac2";
         int numLines = description.split("\n").length;
         System.out.println(description.split("\n"));
@@ -115,7 +115,7 @@ public class ComicService {
             }
         }
 
-        return pollPredictionStatus(predictionId, chatId, userId);
+        return pollPredictionStatus(predictionId, chatId, userId, captions);
     }
 
     private String parsePredictionId(String responseBody) {
@@ -128,7 +128,7 @@ public class ComicService {
         }
     }
 
-    public List<String> pollPredictionStatus(String predictionId, Integer chatId, String userId) throws IOException {
+    public List<String> pollPredictionStatus(String predictionId, Integer chatId, String userId, String[] captions) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         List<String> outputUrls = new ArrayList<>();
         List<String> savedFilePaths = new ArrayList<>();
@@ -165,6 +165,7 @@ public class ComicService {
                             comic.setChatId(chatId);
                             comic.setDate(date);
                             comic.setType("comic");
+                            comic.setAttribute(captions[i]);
                             String url = saveImageToFile(outputUrls.get(i), index++, chatId);
                             comic.setUrl(url);
                             comic.setPage(i);
@@ -179,6 +180,7 @@ public class ComicService {
                         comic.setChatId(chatId);
                         comic.setDate(date);
                         comic.setType("comic");
+                        comic.setAttribute(captions[i]);
                         String url = saveImageToFile(outputUrls.get(i), index++, chatId);
                         comic.setUrl(url);
                         comic.setPage(i);

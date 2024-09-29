@@ -8,9 +8,11 @@ import com.wellnest.comic.dao.ComicRepo;
 import com.wellnest.comic.model.ChatData;
 import com.wellnest.comic.model.Collection;
 import com.wellnest.comic.model.Comic;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import java.util.stream.Collectors;
 
 import java.util.*;
 
@@ -41,15 +43,50 @@ public class CollectionService {
             String voiceUrls = (String) result[2];
             Date date = (Date) result[3];
 
-            Map<String, List<String>> urlsByType = new HashMap<>();
-            urlsByType.put("comic", splitUrls(comicUrls));
+            Map<String, List<?>> urlsByType = new HashMap<>();
+            urlsByType.put("comic", createComicData(comicUrls));
             urlsByType.put("voice", splitUrls(voiceUrls));
 
-            ChatData chatData = new ChatData(title, urlsByType, date);
+            List<Map<String, String>> dialogues = createDialoguesForChat((Integer) result[4]);
+
+            ChatData chatData = new ChatData(title, urlsByType, date, dialogues);
             chatDataList.add(chatData);
         }
 
         return chatDataList;
+    }
+    private List<Map<String, String>> createDialoguesForChat(Integer chatId) {
+        List<Object[]> voiceDialogues = collectionDao.getVoiceDialogues(chatId);
+        List<Map<String, String>> dialogues = new ArrayList<>();
+
+        for (Object[] dialogueResult : voiceDialogues) {
+            Integer page = (Integer) dialogueResult[0];
+            String content = (String) dialogueResult[1];
+
+            Map<String, String> dialogue = new HashMap<>();
+            dialogue.put("page", String.valueOf(page));
+            dialogue.put("content", content);
+            dialogues.add(dialogue);
+        }
+
+        return dialogues;
+    }
+
+    private List<Map<String, String>> createComicData(String comicUrls) {
+        List<Map<String, String>> comicDataList = new ArrayList<>();
+        if (comicUrls == null || comicUrls.isEmpty()) {
+            return comicDataList;
+        }
+
+        String[] urlArray = comicUrls.split(",");
+        for (String url : urlArray) {
+            Map<String, String> comicData = new HashMap<>();
+            comicData.put("url", url.trim());
+            comicData.put("caption", collectionDao.getCaptionByUrl(url));
+            comicDataList.add(comicData);
+        }
+
+        return comicDataList;
     }
 
     private List<String> splitUrls(String urls) {
@@ -57,12 +94,9 @@ public class CollectionService {
             return new ArrayList<>();
         }
         String[] urlArray = urls.split(",");
-        List<String> urlList = new ArrayList<>();
-        for (String url : urlArray) {
-            urlList.add(url.trim());
-        }
-        return urlList;
+        return Arrays.stream(urlArray).map(String::trim).collect(Collectors.toList());
     }
+
 }
 
 
