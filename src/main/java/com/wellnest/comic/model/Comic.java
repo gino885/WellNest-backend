@@ -41,7 +41,7 @@ public class Comic {
     @Column(name = "user_id")
     private Integer userId;
 
-    @Column(name = "chat_id", insertable = false, updatable = false)
+    @Column(name = "chat_id")
     private Integer chatId;
 
 }
