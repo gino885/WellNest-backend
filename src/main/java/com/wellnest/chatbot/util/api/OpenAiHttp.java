@@ -69,14 +69,14 @@ public class OpenAiHttp {
             "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了!\n" +
             "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了[laugh]，你忍不住笑出声来，同时又为学生感到担心。\n";
 
-    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be between 4 to 10 characters long, written in Traditional Chinese, and should avoid using idiomatic four-character phrases (成語). The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
+    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be between 5 to 10 characters long, written in Traditional Chinese in Taiwan tone, and should avoid using idiomatic four-character phrases (成語). The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
             "\n" +
             "Descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
             "caption: [caption 1, caption 2, caption 3, ...]\n" +
             "Descriptions:\n" +
             "{}\n" +
             "Format:\n" +
-            "caption: [教授在耐心指導學生,教室裡電腦螢幕微微發亮,教授發現錯誤，靜靜思考,白板上寫滿了靈感點子,深夜中，教授給了新方向,早上實驗室裡熱烈討論,比賽場地充滿緊張氛圍,精彩演示，大家屏氣凝神,得獎時全場爆出熱烈掌聲,教授微笑，學生們開心歡呼]\n" +
+            "caption: [教授在耐心指導學生, 教室裡電腦螢幕微微發亮, 教授發現錯誤，靜靜思考, 白板上寫滿了靈感點子, 深夜中，教授給了新方向,早上實驗室裡熱烈討論, 比賽場地充滿緊張氛圍,精彩演示，大家屏氣凝神, 得獎時全場爆出熱烈掌聲, 教授微笑，學生們開心歡呼]\n" +
             "\n" +
             "Please ensure that each caption is creative, accurately reflects the corresponding description, and uses simple and conversational language.\n";
     private String title_prompt = "Based on the following story description, please generate a compelling and concise title that captures the essence and positive ending of the story，請使用繁體中文並在 3 到 8 個字之間: {}";

@@ -70,7 +70,7 @@ public class ComicController {
             String narration = openAiHttp.getChatCompletion(description, messages, "narration");
             String title = collectionService.getTitle(description, messages, chatId);
 
-            String[] captions = caption.split(",");
+            String[] captions = caption.replace("caption: [", "").replace("]", "").trim().split(",");
             System.out.println("caption" + caption);
             System.out.println("narration: " + narration);
             String[] narration_sep = narration.split("\n");
