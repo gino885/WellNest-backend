@@ -37,7 +37,7 @@ public class OpenAiHttp {
             "6. Narrations and dialogues can be interspersed within the same scene.\n" +
             "7. Each narration must be 100 characters or less.\n" +
             "9. For [NC] scenes, focus on atmosphere, setting, and background sounds, even if no characters are present. Each description must generate a corresponding narration regardless of the presence of characters.\n" +
-            "10. Not every narration must be followed by dialogue, include dialogues only when necessary for storytelling.\n" +
+            "10. Not every narration must be followed by dialogue, include dialogues when it is suitable for storytelling.\n" +
             "11. Maintain consistency in timeline and storytelling.\n" +
             "12. Separate each line of narration or dialogue with \\n.\n" +
             "13. Do not use any additional markers or symbols (such as **) in the text.\n" +
@@ -69,7 +69,11 @@ public class OpenAiHttp {
             "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了!\n" +
             "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了[laugh]，你忍不住笑出声来，同时又为学生感到担心。\n";
 
-    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be between 5 to 10 characters long, written in Traditional Chinese in Taiwan tone, and should avoid using idiomatic four-character phrases (成語). The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
+    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be between 5 to 10 characters long, written in Traditional Chinese，請按照以下規則回覆我：\n" +
+            "- 語言：只用繁體中文和台灣慣用語翻譯，勿使用簡體中文和中國慣用語。\n" +
+            "- 風格：符合台灣人寫作習慣，通順易讀，並力求文學性及雋永。\n" +
+            "- 名詞：用台灣慣用譯法翻譯名詞，同一篇文章內的名詞翻譯需保持一致。\n" +
+            "- 格式：所有標點符號必須為全形，中英文之間保持空格。. The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
             "\n" +
             "Descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
             "caption: [caption 1, caption 2, caption 3, ...]\n" +
@@ -112,7 +116,7 @@ public class OpenAiHttp {
         ArrayNode messagesNode = objectMapper.createArrayNode();
         ObjectNode systemMessage = objectMapper.createObjectNode();
         systemMessage.put("role", "system");
-        systemMessage.put("content", "You are a professional writer.");
+        systemMessage.put("content", "You are a professional comic writer.");
         messagesNode.add(systemMessage);
 
         ObjectNode respond = objectMapper.createObjectNode();
