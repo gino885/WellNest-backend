@@ -31,7 +31,7 @@ public class OpenAiHttp {
             "\n" +
             "1. Use Simplified Chinese characters, but with a more colloquial Taiwanese tone and expressions, avoiding overly formal or literary language and ignore time like night or afternoon\n" +
             "2. Each description is separated by \\n in the input.\n" +
-            "3. Use [uv_break] for pauses or transitions and [laugh] for laughter where appropriate.\n" +
+            "3. Use [uv_break] for indicating pauses or transitions and [laugh] for indicating laughter where appropriate.\n" +
             "4. Generate character dialogues where appropriate, using [Dialogue_X] tags (X should match the number of the most recent [Narration_X] tag).\n" +
             "5. Each scene's narration starts with [Narration_X] (X is the scene number, which should be consecutive and and match the number of descriptions, up to 10 scenes.).\n" +
             "6. Narrations and dialogues can be interspersed within the same scene.\n" +
@@ -56,31 +56,31 @@ public class OpenAiHttp {
             "Input descriptions: {}\n" +
             "\n" +
             "Output format:\n" +
-            "[Narration_X] [Second-person narration with [uv_break] and [laugh]] avoid 'they' and 'them'\\n\n" +
+            "[Narration_X] [Second-person narration] avoid 'they' and 'them'\\n\n" +
             "[Dialogue_X] [First-person character dialogue between 10 and 50 characters to generate at least 2 seconds of audio, but only where necessary for the scene]\\n\n" +
             "[Narration_X] [Continued second-person narration, including any descriptive elements about the dialogue]\\n\n" +
             "...\n" +
             "\n" +
             "Example output:\n" +
-            "[Narration_1] 你走进拥挤的教室[uv_break]，感受到紧张的气氛扑面而来。你看到教授正在苦苦想着什么。\n " +
+            "[Narration_1] 你走进拥挤的教室，感受到紧张的气氛扑面而来。你看到教授正在苦苦想着什么。\n " +
             "[Dialogue_1] 呼——今天真是太难了，每个细节都不顺!\n" +
             "[Narration_1] 教授自言自语道，脸上写满了担忧。你注意到教授的鞋带松了，心里暗自担心他可能会绊倒。\n" +
             "[Narration_2] 突然，教授站起来准备开始讲课，你屏住呼吸，期待着接下来会发生什么。\n" +
-            "[Dialogue_2] 哎呀！怎么又是这个问题，烦死了!\n" +
-            "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了[laugh]，你忍不住笑出声来，同时又为学生感到担心。\n";
+            "[Dialogue_2] 哎呀！[uv_break]怎么又是这个问题，烦死了!\n" +
+            "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了，你忍不住笑出声来[laugh]，同时又为学生感到担心。\n";
 
-    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description. Each caption should be between 5 to 10 characters long, written in Traditional Chinese，請按照以下規則回覆我：\n" +
+    private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description，請按照以下規則回覆我：\n" +
             "- 語言：只用繁體中文和台灣慣用語翻譯，勿使用簡體中文和中國慣用語。\n" +
             "- 風格：符合台灣人寫作習慣，通順易讀，並力求文學性及雋永。\n" +
             "- 名詞：用台灣慣用譯法翻譯名詞，同一篇文章內的名詞翻譯需保持一致。\n" +
-            "- 格式：所有標點符號必須為全形，中英文之間保持空格。. The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
+            "- 格式：所有標點符號必須為全形，中英文之間保持空格，且為5~10個中文字。. The captions should feel more casual and conversational to better match a modern, everyday tone. Ensure that the length of the captions varies for diversity.\n" +
             "\n" +
             "Descriptions are separated by `\\n`. Please return the captions as an array formatted like this:\n" +
             "caption: [caption 1, caption 2, caption 3, ...]\n" +
             "Descriptions:\n" +
             "{}\n" +
             "Format:\n" +
-            "caption: [教授在耐心指導學生, 教室裡電腦螢幕微微發亮, 教授發現錯誤，靜靜思考, 白板上寫滿了靈感點子, 深夜中，教授給了新方向,早上實驗室裡熱烈討論, 比賽場地充滿緊張氛圍,精彩演示，大家屏氣凝神, 得獎時全場爆出熱烈掌聲, 教授微笑，學生們開心歡呼]\n" +
+            "caption: [教授在耐心指導學生,教室裡電腦螢幕微微發亮,教授發現錯誤，靜靜思考,白板上寫滿了靈感點子,深夜中，教授給了新方向,早上實驗室裡熱烈討論,比賽場地充滿緊張氛圍,精彩演示，大家屏氣凝神,得獎時全場爆出熱烈掌聲,教授微笑，學生們開心歡呼]\n" +
             "\n" +
             "Please ensure that each caption is creative, accurately reflects the corresponding description, and uses simple and conversational language.\n";
     private String title_prompt = "Based on the following story description, please generate a compelling and concise title that captures the essence and positive ending of the story，請使用繁體中文並在 3 到 8 個字之間: {}";
