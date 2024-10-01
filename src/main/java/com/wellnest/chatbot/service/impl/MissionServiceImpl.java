@@ -36,7 +36,7 @@ public class MissionServiceImpl implements MissionService {
             String json = "{\"text\":\"" + content + "\"}";
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
-                    .url("https://24a3-34-105-124-8.ngrok-free.app/predict")
+                    .url("https://f8a9-35-245-62-99.ngrok-free.app/predict")
                     .post(body)
                     .build();
             String jsonRespond = "";
@@ -79,6 +79,17 @@ public class MissionServiceImpl implements MissionService {
                 final_missions.addAll(getTopMissions(missionScores, difficulty));
             }
             System.out.println(final_missions);
+            if (final_missions.size() < 3) {
+                List<Mission> easyMissions = missionDao.findByDifficulty(0);
+                int i = 0;
+                while (final_missions.size() < 3 && i < easyMissions.size()) {
+                    Mission candidateMission = easyMissions.get(i);
+                    if (!final_missions.contains(candidateMission)) {
+                        final_missions.add(candidateMission);
+                    }
+                    i++;
+                }
+            }
             return final_missions;
         } catch (Exception e) {
             e.printStackTrace();

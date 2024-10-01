@@ -71,6 +71,9 @@ public class ComicController {
             String title = collectionService.getTitle(description, messages, chatId);
 
             String[] captions = caption.replace("caption: [", "").replace("]", "").trim().split(",");
+            for (int i = 0; i < captions.length; i++) {
+                captions[i] = captions[i].trim();
+            }
             System.out.println("caption" + caption);
             System.out.println("narration: " + narration);
             String[] narration_sep = narration.split("\n");
@@ -128,6 +131,7 @@ public class ComicController {
             List<ChatData> chatData = collectionService.getCollection(Integer.parseInt(userId));
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
+            System.out.println(chatData);
             return ResponseEntity.ok().headers(headers).body(chatData);
         } catch (Exception e){
             logger.error(e.getMessage(), e);

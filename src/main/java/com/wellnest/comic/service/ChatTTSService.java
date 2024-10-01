@@ -2,6 +2,7 @@ package com.wellnest.comic.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.houbb.opencc4j.util.ZhTwConverterUtil;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.comic.dao.ComicRepo;
 import com.wellnest.comic.model.AudioFile;
@@ -171,6 +172,7 @@ public class ChatTTSService {
                     comic.setChatId(chatId);
                     comic.setType("voice");
                     if (type.equals("Dialogue")){
+                        content = ZhTwConverterUtil.toTraditional(content);
                         comic.setAttribute(content);
                     }
                     comic.setDate(date);
