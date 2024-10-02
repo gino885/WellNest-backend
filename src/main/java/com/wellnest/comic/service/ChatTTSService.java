@@ -171,12 +171,12 @@ public class ChatTTSService {
                     comic.setUserId(Integer.parseInt(userId));
                     comic.setChatId(chatId);
                     comic.setType("voice");
+                    comic.setDate(date);
+                    String url = saveAudio(content, filename, formattedDate, chatId);
                     if (type.equals("Dialogue")){
                         content = ZhTwConverterUtil.toTraditional(content);
                         comic.setAttribute(content);
                     }
-                    comic.setDate(date);
-                    String url = saveAudio(content, filename, formattedDate, chatId);
                     comic.setUrl(url);
                     comic.setPage(sceneNumber);
                     comicRepo.save(comic);
