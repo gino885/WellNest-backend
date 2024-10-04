@@ -13,9 +13,6 @@ import java.util.List;
 
 @Service
 public class TherapyServiceImpl implements TherapyService {
-
-    private final String GEOCODING_API_URL = "https://maps.googleapis.com/maps/api/geocode/json";
-    private static String googleKey = System.getenv("GOOGLE_KEY");
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
