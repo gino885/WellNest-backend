@@ -2,33 +2,31 @@ package com.wellnest.chatbot.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.dao.MissionDao;
 import com.wellnest.chatbot.model.Emotion;
 import com.wellnest.chatbot.model.Mission;
 import com.wellnest.chatbot.service.MissionService;
-import jdk.swing.interop.SwingInterOpUtils;
-import jep.Interpreter;
-import jep.SharedInterpreter;
+import com.wellnest.comic.model.ChatData;
+import com.wellnest.comic.service.CollectionService;
 import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 @Service
 public class MissionServiceImpl implements MissionService {
     @Autowired
     private MissionDao missionDao;
 
-    public List<Mission> getMission(String content) {
+    @Autowired
+    private CollectionService collectionService;
+
+    @Autowired
+    private ChatDao chatDao;
+
+    public List<Mission> getMission(String content, Integer userId) {
         try {
             OkHttpClient client = new OkHttpClient();
             System.out.println(content);
@@ -36,7 +34,7 @@ public class MissionServiceImpl implements MissionService {
             String json = "{\"text\":\"" + content + "\"}";
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
-                    .url("https://f8a9-35-245-62-99.ngrok-free.app/predict")
+                    .url("https://194a-34-139-82-103.ngrok-free.app/predict")
                     .post(body)
                     .build();
             String jsonRespond = "";
@@ -74,6 +72,7 @@ public class MissionServiceImpl implements MissionService {
                     for (Emotion emotion : mission.getEmotions()) {
                         score += emotionScores.getOrDefault(emotion.getName(), 0.0);
                     }
+
                     missionScores.put(mission, score);
                 }
                 final_missions.addAll(getTopMissions(missionScores, difficulty));
@@ -88,6 +87,35 @@ public class MissionServiceImpl implements MissionService {
                         final_missions.add(candidateMission);
                     }
                     i++;
+                }
+            }
+            List<ChatData> chatDataById = collectionService.getCollection(userId);
+            int comicCount = 0;
+            for (Mission mission : final_missions) {
+                List<ChatData> chatDataList = collectionService.getCollectionByMission(mission.getMissionID());
+                if (chatDataList == null || chatDataList.isEmpty()) {
+                    if (chatDataById.get(comicCount) != null){
+                        mission.setChatData(chatDataById.get(comicCount));
+                        comicCount ++;
+                    }
+                } else {
+                    ChatData bestChatData = null;
+                    double highestScore = Double.NEGATIVE_INFINITY;
+
+                    for (ChatData chatData : chatDataList) {
+                        List<String> chatEmotions = chatDao.getEmotionById(chatData.getChatId());
+                        double currentScore = 0;
+
+                        for (String emotion : chatEmotions) {
+                            currentScore += emotionScores.getOrDefault(emotion, 0.0);
+                        }
+
+                        if (currentScore > highestScore) {
+                            highestScore = currentScore;
+                            bestChatData = chatData;
+                        }
+                    }
+                    mission.setChatData(bestChatData);
                 }
             }
             return final_missions;

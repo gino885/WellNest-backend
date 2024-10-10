@@ -1,13 +1,18 @@
 package com.wellnest.chatbot.model;
 
+import com.wellnest.comic.model.ChatData;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "mission")
 public class Mission {
 
@@ -21,6 +26,9 @@ public class Mission {
 
     @Column(name = "difficulty")
     private int difficulty;
+
+    @Transient
+    private ChatData chatData;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
