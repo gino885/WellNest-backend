@@ -29,4 +29,6 @@ public interface ChatDao {
     String getMissionById(Integer chatId);
 
     List<String> getEmotionById(Integer chatId);
+
+    void adjustShare(Integer chatId, Boolean share);
 }

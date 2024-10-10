@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.IOException;
 import java.security.Key;
@@ -143,6 +144,21 @@ public class ComicController {
         }
 
     }
+
+    @PostMapping("/share")
+    public ResponseEntity<?> adjustShare(@RequestBody Integer chatId, Boolean share) throws Exception{
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        try{
+            chatDao.adjustShare(chatId, share);
+            return ResponseEntity.ok().headers(headers).build();
+        } catch (Exception e){
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( e.getMessage());
+        }
+    }
+
+
     private String getUserIdFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(key)

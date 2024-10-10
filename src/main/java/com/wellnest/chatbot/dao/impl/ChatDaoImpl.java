@@ -194,4 +194,14 @@ public class ChatDaoImpl implements ChatDao {
             return Collections.emptyList();
         }
     }
+
+    @Override
+    public void adjustShare(Integer chatId, Boolean share) {
+        String sql = "UPDATE chat SET share = :share, WHERE chat_id = :chatId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("chatId", chatId);
+        map.put("share", share);
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 public class ChatServiceImpl implements ChatService {
     @Autowired
     ChatDao chatDao;
+
     @Override
     public Integer createChat(ChatCreateRequest chatCreateRequest) {
         chatCreateRequest.setStatus("created");
@@ -38,4 +39,5 @@ public class ChatServiceImpl implements ChatService {
     public void storeMission(Integer chatId, String mission) {
         chatDao.storeMission(chatId, mission);
     }
+
 }
