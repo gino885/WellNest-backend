@@ -27,4 +27,6 @@ public interface ChatDao {
     void storeMission(Integer chatId, String mission);
 
     String getMissionById(Integer chatId);
+
+    List<String> getEmotionById(Integer chatId);
 }

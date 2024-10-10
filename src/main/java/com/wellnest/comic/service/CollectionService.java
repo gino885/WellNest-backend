@@ -12,6 +12,7 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import java.util.stream.Collectors;
 
 import java.util.*;
@@ -27,14 +28,19 @@ public class CollectionService {
     private ChatDao chatDao;
     @Autowired
     private CollectionDao collectionDao;
-    public String getTitle(String description, String messages, Integer chatId) throws Exception{
+
+    public String getTitle(String description, String messages, Integer chatId) throws Exception {
         String title = openAiHttp.getChatCompletion(description, messages, "title");
         chatDao.saveTitle(chatId, title.replaceAll("\\*", ""));
         return title;
     }
 
     public List<ChatData> getCollection(Integer userId) {
-        List<Object[]> results = collectionDao.getUrlsGroupedByType(userId);
+        List<Object[]> results;
+
+        results = collectionDao.getUrlsGroupedByType(userId);
+
+
         List<ChatData> chatDataList = new ArrayList<>();
 
         for (Object[] result : results) {
@@ -42,6 +48,7 @@ public class CollectionService {
             String comicUrls = (String) result[1];
             String voiceUrls = (String) result[2];
             Date date = (Date) result[3];
+            Integer chatId = (Integer) result[4];
 
             Map<String, List<?>> urlsByType = new HashMap<>();
             urlsByType.put("comic", createComicData(comicUrls));
@@ -49,12 +56,39 @@ public class CollectionService {
 
             List<Map<String, String>> dialogues = createDialoguesForChat((Integer) result[4]);
 
-            ChatData chatData = new ChatData(title, urlsByType, date, dialogues);
+            ChatData chatData = new ChatData(chatId, title, urlsByType, date, dialogues);
             chatDataList.add(chatData);
         }
 
         return chatDataList;
     }
+
+    public List<ChatData> getCollectionByMission(Integer missionId) {
+        List<Object[]> results;
+        results = collectionDao.getUrlsGroupedByMissionId(missionId);
+
+        List<ChatData> chatDataList = new ArrayList<>();
+
+        for (Object[] result : results) {
+            String title = (String) result[0];
+            String comicUrls = (String) result[1];
+            String voiceUrls = (String) result[2];
+            Date date = (Date) result[3];
+            Integer chatId = (Integer) result[4];
+
+            Map<String, List<?>> urlsByType = new HashMap<>();
+            urlsByType.put("comic", createComicData(comicUrls));
+            urlsByType.put("voice", splitUrls(voiceUrls));
+
+            List<Map<String, String>> dialogues = createDialoguesForChat((Integer) result[4]);
+
+            ChatData chatData = new ChatData(chatId, title, urlsByType, date, dialogues);
+            chatDataList.add(chatData);
+        }
+
+        return chatDataList;
+    }
+
     private List<Map<String, String>> createDialoguesForChat(Integer chatId) {
         List<Object[]> voiceDialogues = collectionDao.getVoiceDialogues(chatId);
         List<Map<String, String>> dialogues = new ArrayList<>();

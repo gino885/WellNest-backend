@@ -25,6 +25,19 @@ public interface CollectionDao extends CrudRepository<Comic, Long> {
             "GROUP BY ch.chat_id", nativeQuery = true)
     List<Object[]> getUrlsGroupedByType(@Param("userId" ) Integer userId);
 
+    @Query(value = "SELECT " +
+            "ch.title, " +
+            "GROUP_CONCAT(CASE WHEN c.type = 'comic' THEN c.url END) AS comicUrls, " +
+            "GROUP_CONCAT(CASE WHEN c.type = 'voice' THEN c.url END) AS voiceUrls, " +
+            "ch.date, " +
+            "ch.chat_id  " +
+            "FROM collection c " +
+            "JOIN chat ch ON c.chat_id = ch.chat_id " +
+            "WHERE (:missionId IS NULL OR ch.mission = :missionId) " +
+            "WHERE ch.share = true " +
+            "GROUP BY ch.chat_id", nativeQuery = true)
+    List<Object[]> getUrlsGroupedByMissionId(@Param("missionId") Integer missionId);
+
     @Query (value = "SELECT attribute from Comic where url =:url")
     String getCaptionByUrl(@Param("url") String url);
 

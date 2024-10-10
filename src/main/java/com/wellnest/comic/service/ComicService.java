@@ -9,6 +9,9 @@ import com.wellnest.comic.dao.ComicRepo;
 import com.wellnest.comic.model.Comic;
 import com.wellnest.comic.model.ComicJSON;
 import com.wellnest.comic.model.ComicRequest;
+import com.wellnest.user.dao.UserDao;
+import com.wellnest.user.enmus.Gender;
+import com.wellnest.user.model.User;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +53,9 @@ public class ComicService {
     private ChatDao chatDao;
     @Autowired
     private ComicRepo comicRepo;
+
+    @Autowired
+    private UserDao userDao;
     private S3Client s3Client;
     private String bucketName = "wellnestbucket";
 
@@ -65,13 +71,18 @@ public class ComicService {
         System.out.println(description.split("\n"));
         int numIds = Math.min(3, numLines);
         System.out.printf("numlines：%s, numIds：%s", numLines, numIds);
+        User user = userDao.getUserById(Integer.parseInt(userId));
+        String characterDescription = String.format("a %s-years-old man, wearing a white T-shirt", user.getAge());
+        if (user.getGender().equals(Gender.FEMALE) ){
+            characterDescription = String.format("a %s-years-old woman, wearing a white T-shirt", user.getAge());
+        }
 
         ComicJSON.InputParams inputParams = ComicJSON.InputParams.builder()
                 .comicDescription(description)
-                .characterDescription("a man, wearing black suit")
+                .characterDescription(characterDescription)
                 .sdModel("Unstable")
-                .numSteps(25)
-                .styleName("Disney Charactor")
+                .numSteps(50)
+                .styleName("Japanese Anime")
                 .comicStyle("Classic Comic Style")
                 .imageWidth(512)
                 .imageHeight(512)
