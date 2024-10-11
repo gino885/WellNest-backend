@@ -98,14 +98,14 @@ public class ChatTTSService {
         }
     }
 
-    public String saveAudio(String text, String fileName, String date, int chatId, int userId) throws IOException, InterruptedException {
+    public String saveAudio(String text, String fileName, String date, int chatId, String userId) throws IOException, InterruptedException {
         log.info("Starting audio save for text: {}", text);
         String predictionId = "";
 
         if (fileName.startsWith("voice/" + date + "/" + chatId + "/n")){
             predictionId = generateSpeech(text, 2222);
         } else if (fileName.startsWith("voice/" + date + "/" + chatId + "/d")){
-            if (userDao.getUserById(userId).getGender().equals(Gender.FEMALE)){
+            if (userDao.getUserById(Integer.parseInt(userId)).getGender().equals(Gender.FEMALE)){
                 predictionId = generateSpeech(text, 7869);
             }
             else {
