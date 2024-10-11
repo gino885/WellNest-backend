@@ -7,6 +7,8 @@ import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.comic.dao.ComicRepo;
 import com.wellnest.comic.model.AudioFile;
 import com.wellnest.comic.model.Comic;
+import com.wellnest.user.dao.UserDao;
+import com.wellnest.user.enmus.Gender;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jdk.swing.interop.SwingInterOpUtils;
 import lombok.Data;
@@ -42,6 +44,9 @@ public class ChatTTSService {
 
     @Autowired
     private ChatDao chatDao;
+
+    @Autowired
+    private UserDao userDao;
     @Autowired
     private ComicRepo comicRepo;
     private S3Client s3Client;
@@ -93,14 +98,19 @@ public class ChatTTSService {
         }
     }
 
-    public String saveAudio(String text, String fileName, String date, int chatId) throws IOException, InterruptedException {
+    public String saveAudio(String text, String fileName, String date, int chatId, int userId) throws IOException, InterruptedException {
         log.info("Starting audio save for text: {}", text);
         String predictionId = "";
 
         if (fileName.startsWith("voice/" + date + "/" + chatId + "/n")){
             predictionId = generateSpeech(text, 2222);
         } else if (fileName.startsWith("voice/" + date + "/" + chatId + "/d")){
-            predictionId = generateSpeech(text, 4099);
+            if (userDao.getUserById(userId).getGender().equals(Gender.FEMALE)){
+                predictionId = generateSpeech(text, 7869);
+            }
+            else {
+                predictionId = generateSpeech(text, 4099);
+            }
         }
         ObjectMapper objectMapper = new ObjectMapper();
         String savedFilePath;
@@ -172,7 +182,7 @@ public class ChatTTSService {
                     comic.setChatId(chatId);
                     comic.setType("voice");
                     comic.setDate(date);
-                    String url = saveAudio(content, filename, formattedDate, chatId);
+                    String url = saveAudio(content, filename, formattedDate, chatId, userId);
                     if (type.equals("Dialogue")){
                         content = ZhTwConverterUtil.toTraditional(content);
                         comic.setAttribute(content);

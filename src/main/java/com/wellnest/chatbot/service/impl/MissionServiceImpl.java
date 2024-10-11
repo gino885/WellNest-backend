@@ -34,7 +34,7 @@ public class MissionServiceImpl implements MissionService {
             String json = "{\"text\":\"" + content + "\"}";
             RequestBody body = RequestBody.create(json, MediaType.parse("application/json; charset=utf-8"));
             Request request = new Request.Builder()
-                    .url("https://194a-34-139-82-103.ngrok-free.app/predict")
+                    .url("https://7588-34-145-38-174.ngrok-free.app/predict")
                     .post(body)
                     .build();
             String jsonRespond = "";
@@ -75,7 +75,17 @@ public class MissionServiceImpl implements MissionService {
 
                     missionScores.put(mission, score);
                 }
-                final_missions.addAll(getTopMissions(missionScores, difficulty));
+                if(difficulty == 0){
+                    List<Mission> topMission = getTopMissions(missionScores, difficulty);
+                    final_missions.add(topMission.get(0));
+                    final_missions.add(topMission.get(1));
+                }
+                else {
+                    List<Mission> topMission = getTopMissions(missionScores, difficulty);
+                    final_missions.add(topMission.get(0));
+                }
+                missions.clear();
+                missionScores.clear();
             }
             System.out.println(final_missions);
             if (final_missions.size() < 3) {
@@ -94,7 +104,7 @@ public class MissionServiceImpl implements MissionService {
             for (Mission mission : final_missions) {
                 List<ChatData> chatDataList = collectionService.getCollectionByMission(mission.getMissionID());
                 if (chatDataList == null || chatDataList.isEmpty()) {
-                    if (chatDataById.get(comicCount) != null){
+                    if (comicCount < chatDataById.size() && chatDataById.get(comicCount) != null){
                         mission.setChatData(chatDataById.get(comicCount));
                         comicCount ++;
                     }

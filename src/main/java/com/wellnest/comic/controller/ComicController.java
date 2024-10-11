@@ -94,7 +94,6 @@ public class ComicController {
                 }
             }
             List<String> imageUrls = comicService.generateComic(description,chatId, userId, captions);
-
             List<String> audioList = chatTTSService.processNarrationAndDialogue(narration, chatId, userId);
 
             log.info("Images and narration processing completed.");

@@ -44,13 +44,14 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public Integer createMessage(MessageRequeat messageRequeat) {
-        String sql = "INSERT INTO message(date, content, user_id, chat_id)" +
-                "VALUES (:date, :content, :userId, :chatId)";
+        String sql = "INSERT INTO message(date, content, user_id, chat_id, share)" +
+                "VALUES (:date, :content, :userId, :chatId, :share)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("userId", messageRequeat.getUserId());
         map.put("content", messageRequeat.getContent());
         map.put("chatId",messageRequeat.getChatId());
+        map.put("share", true);
 
         Date now = new Date();
         map.put("date", now);

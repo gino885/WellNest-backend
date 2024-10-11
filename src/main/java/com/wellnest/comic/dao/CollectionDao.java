@@ -34,7 +34,7 @@ public interface CollectionDao extends CrudRepository<Comic, Long> {
             "FROM collection c " +
             "JOIN chat ch ON c.chat_id = ch.chat_id " +
             "WHERE (:missionId IS NULL OR ch.mission = :missionId) " +
-            "WHERE ch.share = true " +
+            "AND ch.share = true " +
             "GROUP BY ch.chat_id", nativeQuery = true)
     List<Object[]> getUrlsGroupedByMissionId(@Param("missionId") Integer missionId);
 
