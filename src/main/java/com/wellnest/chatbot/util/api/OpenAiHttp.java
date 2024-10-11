@@ -16,9 +16,9 @@ import java.util.Objects;
 
 @Component
 public class OpenAiHttp {
-    private String description_prompt = "根據以下中文文本生成一個英文的第二人稱故事情節。Format: 1. Scene description with specific actions " +
+    private String description_prompt = "根據以下用戶聊天內容還原他當天一個英文的第二人稱故事情節。Format: 1. Scene description with specific actions " +
             "2. [NC] Scene with no characters, just environmental details 3. Actions of the characters or important events in the story，" +
-            "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並要提及用戶做的事情如何影響他的心情，事情:{mission}，並且結局要正向。 {} Example Format: " +
+            "每個情節用 `\n` 分隔，並且只使用英文。請確保生成的情節小於10句，並要提及用戶做的事情如何影響他的心情，聊天內容: {}，事情:{mission}，並且結局要正向。Example Format: " +
             "Discussing project challenges with two students, offering guidance, night\n[NC] An empty classroom, a computer screen flickers, night\n" +
             "Spotting an error in the code on the screen, eyes narrowing, night\n[NC] A whiteboard filled with diagrams, late night\n" +
             "Receiving a student's plea for help, suggesting a different approach on the whiteboard, late night\n" +
@@ -66,7 +66,7 @@ public class OpenAiHttp {
             "[Dialogue_1] 呼——今天真是太难了，每个细节都不顺!\n" +
             "[Narration_1] 教授自言自语道，脸上写满了担忧。你注意到教授的鞋带松了，心里暗自担心他可能会绊倒。\n" +
             "[Narration_2] 突然，教授站起来准备开始讲课，你屏住呼吸，期待着接下来会发生什么。\n" +
-            "[Dialogue_2] 哎呀！[uv_break]怎么又是这个问题，烦死了!\n" +
+            "[Dialogue_2] 哎呀！[uv_break]怎么又是这个问题，烦死了。\n" +
             "[Narration_3] 一个学生突然喊道：[uv_break] 教授被自己的鞋带绊倒了，你忍不住笑出声来[laugh]，同时又为学生感到担心。\n";
 
     private String caption_prompt = "Based on the following descriptions, generate a corresponding caption for each description，請按照以下規則回覆我：\n" +

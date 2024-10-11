@@ -31,6 +31,12 @@ public class Chat {
     @Column(name = "mission")
     private String mission;
 
+    @Column(name = "emotion")
+    private List<String> emotion;
+
+    @Column(name = "share")
+    private Boolean share;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;

@@ -14,4 +14,5 @@ public interface ChatService {
     void finishChat(ChatCreateRequest chatCreateRequest);
 
     void storeMission(Integer chatId, String mission);
+
 }

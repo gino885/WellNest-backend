@@ -1,6 +1,6 @@
 package com.wellnest.chatbot.dao.impl;
 
-import com.alibaba.fastjson.support.hsf.HSFJSONUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.dto.ChatCreateRequest;
 import com.wellnest.chatbot.dto.MessageRequeat;
@@ -12,14 +12,15 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 @Component
 public class ChatDaoImpl implements ChatDao {
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
     @Override
     public Integer createChat(ChatCreateRequest chatCreateRequest) {
         String sql = "INSERT INTO chat(date, status, user_id)" +
@@ -43,13 +44,14 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public Integer createMessage(MessageRequeat messageRequeat) {
-        String sql = "INSERT INTO message(date, content, user_id, chat_id)" +
-                "VALUES (:date, :content, :userId, :chatId)";
+        String sql = "INSERT INTO message(date, content, user_id, chat_id, share)" +
+                "VALUES (:date, :content, :userId, :chatId, :share)";
 
         Map<String, Object> map = new HashMap<>();
         map.put("userId", messageRequeat.getUserId());
         map.put("content", messageRequeat.getContent());
         map.put("chatId",messageRequeat.getChatId());
+        map.put("share", true);
 
         Date now = new Date();
         map.put("date", now);
@@ -175,5 +177,32 @@ public class ChatDaoImpl implements ChatDao {
         } catch (EmptyResultDataAccessException e) {
             return "No existing messages";
         }
+    }
+
+    @Override
+    public List<String> getEmotionById(Integer chatId) {
+        String sql = "SELECT emotion FROM chat WHERE chat_id = :chatId";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("chatId", chatId);
+
+        try {
+            String emotionJson = namedParameterJdbcTemplate.queryForObject(sql, params, String.class);
+            return objectMapper.readValue(emotionJson, List.class);
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.emptyList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    @Override
+    public void adjustShare(Integer chatId, Boolean share) {
+        String sql = "UPDATE chat SET share = :share, WHERE chat_id = :chatId";
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("chatId", chatId);
+        map.put("share", share);
+        namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
     }
 }

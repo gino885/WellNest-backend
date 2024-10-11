@@ -6,8 +6,6 @@ import com.wellnest.chatbot.service.MissionService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Key;
@@ -30,7 +28,7 @@ public class MissionController {
         String token = authToken.substring(7);
         userId = getUserIdFromToken(token);
         String messages = String.join(" ", chatDao.getMessagebyUserId(Integer.parseInt(userId)));
-        return missionService.getMission(messages);
+        return missionService.getMission(messages, Integer.parseInt(userId));
     }
     private String getUserIdFromToken(String token) {
         return Jwts.parser()

@@ -1,6 +1,7 @@
 package com.wellnest.comic.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.ibm.icu.text.Transliterator;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.util.api.OpenAiHttp;
 import com.wellnest.comic.model.ChatData;
@@ -20,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.*;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.IOException;
 import java.security.Key;
@@ -70,7 +72,7 @@ public class ComicController {
             String narration = openAiHttp.getChatCompletion(description, messages, "narration");
             String title = collectionService.getTitle(description, messages, chatId);
 
-            String[] captions = caption.replace("caption: [", "").replace("]", "").trim().split(",");
+            String[] captions = caption.replace("caption: [", "").replace("]", "").replaceAll("\"", "").trim().split(",");
             for (int i = 0; i < captions.length; i++) {
                 captions[i] = captions[i].trim();
             }
@@ -84,12 +86,14 @@ public class ComicController {
                     String content = narative.substring(narative.indexOf("]") + 2)
                             .replace("[uv_break]", "")
                             .replace("[laugh]", "");
-                    Dialogue dialogue = new Dialogue(sceneNum, content);
+                    Transliterator trans = Transliterator.getInstance("Simplified-Traditional");
+
+                    String traditional = trans.transliterate(content);
+                    Dialogue dialogue = new Dialogue(sceneNum, traditional);
                     dialogues.add(dialogue);
                 }
             }
             List<String> imageUrls = comicService.generateComic(description,chatId, userId, captions);
-
             List<String> audioList = chatTTSService.processNarrationAndDialogue(narration, chatId, userId);
 
             log.info("Images and narration processing completed.");
@@ -139,6 +143,21 @@ public class ComicController {
         }
 
     }
+
+    @PostMapping("/share")
+    public ResponseEntity<?> adjustShare(@RequestBody Integer chatId, Boolean share) throws Exception{
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        try{
+            chatDao.adjustShare(chatId, share);
+            return ResponseEntity.ok().headers(headers).build();
+        } catch (Exception e){
+            logger.error(e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body( e.getMessage());
+        }
+    }
+
+
     private String getUserIdFromToken(String token) {
         return Jwts.parser()
                 .setSigningKey(key)
