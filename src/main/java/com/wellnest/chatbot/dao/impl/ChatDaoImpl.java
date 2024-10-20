@@ -66,22 +66,18 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public Integer getChatId(Integer userId) {
-        String countSql = "SELECT COUNT(*) FROM chat WHERE user_id = :userId AND status = :status";
+        Map<String, Object> Params = new HashMap<>();
+        Params.put("userId", userId);
+        Params.put("status", "generated");
+        String countSql = "SELECT COUNT(chat_id) FROM chat WHERE user_id = :userId AND status != :status";
 
-        Map<String, Object> countParams = new HashMap<>();
-        countParams.put("userId", userId);
-        countParams.put("status", "created");
+        String sql = "SELECT chat_id FROM chat WHERE user_id = :userId AND status != :status";
 
-        int createdCount = namedParameterJdbcTemplate.queryForObject(countSql, countParams, Integer.class);
+        int createdCount = namedParameterJdbcTemplate.queryForObject(countSql, Params, Integer.class);
 
         if (createdCount > 1) {
             throw new IllegalStateException("More than one chat with status 'created' exists for the user with ID: " + userId);
         }
-
-        Map<String, Object> Params = new HashMap<>();
-        Params.put("userId", userId);
-        Params.put("status", "generated");
-        String sql = "SELECT chat_id FROM chat WHERE user_id = :userId AND status != :status";
 
         try {
             return namedParameterJdbcTemplate.queryForObject(sql, Params, Integer.class);
