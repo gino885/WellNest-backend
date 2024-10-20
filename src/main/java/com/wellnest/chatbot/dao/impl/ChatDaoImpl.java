@@ -44,17 +44,16 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public Integer createMessage(MessageRequeat messageRequeat) {
-        String sql = "INSERT INTO message(date, content, user_id, chat_id, share)" +
-                "VALUES (:date, :content, :userId, :chatId, :share)";
+        String sql = "INSERT INTO message(date, content, user_id, chat_id)" +
+                "VALUES (:date, :content, :userId, :chatId)";
 
         Map<String, Object> map = new HashMap<>();
+        Date now = new Date();
+        map.put("date", now);
         map.put("userId", messageRequeat.getUserId());
         map.put("content", messageRequeat.getContent());
         map.put("chatId",messageRequeat.getChatId());
-        map.put("share", true);
 
-        Date now = new Date();
-        map.put("date", now);
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -71,7 +70,7 @@ public class ChatDaoImpl implements ChatDao {
 
         Map<String, Object> countParams = new HashMap<>();
         countParams.put("userId", userId);
-        countParams.put("status", "generated");
+        countParams.put("status", "created");
 
         int createdCount = namedParameterJdbcTemplate.queryForObject(countSql, countParams, Integer.class);
 
@@ -79,10 +78,13 @@ public class ChatDaoImpl implements ChatDao {
             throw new IllegalStateException("More than one chat with status 'created' exists for the user with ID: " + userId);
         }
 
+        Map<String, Object> Params = new HashMap<>();
+        Params.put("userId", userId);
+        Params.put("status", "generated");
         String sql = "SELECT chat_id FROM chat WHERE user_id = :userId AND status != :status";
 
         try {
-            return namedParameterJdbcTemplate.queryForObject(sql, countParams, Integer.class);
+            return namedParameterJdbcTemplate.queryForObject(sql, Params, Integer.class);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
