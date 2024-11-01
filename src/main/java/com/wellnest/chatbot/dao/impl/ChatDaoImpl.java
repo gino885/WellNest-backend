@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.dto.ChatCreateRequest;
 import com.wellnest.chatbot.dto.MessageRequeat;
+import com.wellnest.chatbot.model.Chat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -202,5 +203,23 @@ public class ChatDaoImpl implements ChatDao {
         map.put("chatId", chatId);
         map.put("share", share);
         namedParameterJdbcTemplate.update(sql, new MapSqlParameterSource(map));
+    }
+
+    @Override
+    public List<Chat> getChatsByDate(Integer userId, Integer requestNum) {
+        String sql = "SELECT * FROM chat WHERE user_id = :userId ORDER BY date DESC LIMIT :num";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("chatId", userId);
+        params.put("num", requestNum);
+
+        try {
+            List<Chat> chats = namedParameterJdbcTemplate.queryForList(sql, params, Chat.class);
+            return chats;
+        } catch (EmptyResultDataAccessException e) {
+            return Collections.emptyList();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 }

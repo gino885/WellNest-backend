@@ -31,4 +31,6 @@ public interface ChatDao {
     List<String> getEmotionById(Integer chatId);
 
     void adjustShare(Integer chatId, Boolean share);
+
+    List<Chat> getChatsByDate(Integer userId, Integer requestNum);
 }
