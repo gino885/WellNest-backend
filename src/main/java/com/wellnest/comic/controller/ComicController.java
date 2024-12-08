@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ibm.icu.text.Transliterator;
 import com.wellnest.chatbot.dao.ChatDao;
 import com.wellnest.chatbot.util.api.OpenAiHttp;
+import com.wellnest.comic.dto.Share;
 import com.wellnest.comic.model.ChatData;
 import com.wellnest.comic.model.Dialogue;
 import com.wellnest.comic.service.ChatTTSService;
@@ -145,11 +146,11 @@ public class ComicController {
     }
 
     @PostMapping("/share")
-    public ResponseEntity<?> adjustShare(@RequestBody Integer chatId, Boolean share) throws Exception{
+    public ResponseEntity<?> adjustShare(@RequestBody Share share) throws Exception{
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         try{
-            chatDao.adjustShare(chatId, share);
+            chatDao.adjustShare(share.getChatId(), share.getShare());
             return ResponseEntity.ok().headers(headers).build();
         } catch (Exception e){
             logger.error(e.getMessage(), e);

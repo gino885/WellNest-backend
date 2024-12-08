@@ -197,7 +197,7 @@ public class ChatDaoImpl implements ChatDao {
 
     @Override
     public void adjustShare(Integer chatId, Boolean share) {
-        String sql = "UPDATE chat SET share = :share, WHERE chat_id = :chatId";
+        String sql = "UPDATE chat SET share = :share WHERE chat_id = :chatId";
 
         Map<String, Object> map = new HashMap<>();
         map.put("chatId", chatId);
