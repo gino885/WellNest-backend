@@ -46,14 +46,14 @@ An API Client like Postman or curl
 Installation & Configuration
 Clone the repository:
 
-Bash
+```Bash
 
 git clone https://github.com/your-username/wellnest-backend.git
 cd wellnest-backend
 Configure the database in application.properties:
 Open src/main/resources/application.properties and update the datasource properties for your local MySQL instance.
-
-Properties
+```
+```Properties
 
 # MySQL Database Configuration
 spring.datasource.url=jdbc:mysql://localhost:3306/wellnest_db?useSSL=false&serverTimezone=UTC
@@ -63,15 +63,18 @@ spring.jpa.hibernate.ddl-auto=update
 
 # External Service API Keys
 openai.api.key=your_openai_api_key
+```
+
 Build the project:
 
-Bash
+```Bash
 
 mvn clean install
 Running the Server
 Run the application using the Maven Spring Boot plugin:
-
-Bash
+```
+```Bash
 
 mvn spring-boot:run
 The server will start on http://localhost:8080.
+```
