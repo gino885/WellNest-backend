@@ -4,7 +4,7 @@ The backend service for WellNest, an AI-powered mental wellness companion. It's 
 # About The Project
 This project is the server-side logic for the WellNest application, developed using the Spring Boot framework. It handles all business logic, data persistence with MySQL, and communication with third-party AI services. Its most innovative feature is the ability to translate user interactions into a personalized comic strip, offering a new form of emotional reflection and guidance.
 
-#✨ Core Features & API Endpoints
+✨ Core Features & API Endpoints
 The API exposes the following core functionalities:
 
 (1) AI-Powered CBT Companion: Provides a conversational endpoint that leverages a fine-tuned GPT-4o mini model for CBT-based guidance.
@@ -19,7 +19,8 @@ The API exposes the following core functionalities:
 (4) Mood Assessment & Profiling: Endpoints for submitting and retrieving user psychological profiles based on the Simplified Health Scale.
 ![image](https://github.com/gino885/WellNest/blob/main/form.jpg)
 
-#🛠️ Technology Stack
+🛠️ Technology Stack
+
 Language: Java 
 
 Framework: Spring Boot 
@@ -30,7 +31,7 @@ Data Persistence: Spring Data JPA / Hibernate
 
 Build Tool: Apache Maven
 
-#🔧 Getting Started
+🔧 Getting Started
 Prerequisites
 Make sure you have the following installed on your system:
 
@@ -74,7 +75,3 @@ Bash
 
 mvn spring-boot:run
 The server will start on http://localhost:8080.
-
-⚙️ API Usage Examples
-Example: Get a Chatbot Response
-Endpoint: POST /api/v1/chat
