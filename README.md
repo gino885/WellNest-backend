@@ -13,7 +13,7 @@ The API exposes the following core functionalities:
 (2) Sentiment Analysis: An endpoint that accepts text from chatbot and returns an emotional analysis using a BERT model to Provides customized suggestions and tasks.
 ![image](https://github.com/gino885/WellNest/blob/main/task.jpg)
 
-(3 )Personalized Emotional Comic Generation: Based on the user’s prior chatbot conversations, the resulting sentiment-analysis insights, and the missions that were recommended, an AI model dynamically creates a customized comic strip that visually reflects the user’s underlying emotions.
+(3) Personalized Emotional Comic Generation: Based on the user’s prior chatbot conversations, the resulting sentiment-analysis insights, and the missions that were recommended, an AI model dynamically creates a customized comic strip that visually reflects the user’s underlying emotions.
 ![image](https://github.com/gino885/WellNest/blob/main/comic.jpg)
 
 (4) Mood Assessment & Profiling: Endpoints for submitting and retrieving user psychological profiles based on the Simplified Health Scale.
@@ -31,7 +31,7 @@ Data Persistence: Spring Data JPA / Hibernate
 
 Build Tool: Apache Maven
 
-🔧 Getting Started
+# Getting Started
 Prerequisites
 Make sure you have the following installed on your system:
 
