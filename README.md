@@ -32,18 +32,7 @@ Data Persistence: Spring Data JPA / Hibernate
 Build Tool: Apache Maven
 
 # Getting Started
-Prerequisites
-Make sure you have the following installed on your system:
 
-Java Development Kit (JDK) 17 or later
-
-Apache Maven
-
-A running instance of MySQL Server
-
-An API Client like Postman or curl
-
-Installation & Configuration
 Clone the repository:
 
 ```Bash
